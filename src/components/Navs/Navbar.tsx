@@ -215,6 +215,9 @@ export default function Navbar({
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to={"/yeasts/"}>Yeast Dashboard</Link>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 

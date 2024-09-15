@@ -1,7 +1,7 @@
 import ExtraCalcs from "./components/ExtraCalculators/ExtraCalcs";
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navs/Navbar";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import BottomBar from "./components/Navs/BottomBar";
 import About from "./components/About/About";
 import ContactUs from "./components/About/ContactUs";
@@ -14,6 +14,10 @@ import Account from "./components/Account/Account";
 import useLocalStorage from "./hooks/useLocalStorage";
 // import useAbv from "./hooks/useAbv";
 import Recipes from "./components/Recipes/Recipes";
+import LocalRecipe from "./components/Recipes/LocalRecipe";
+import { listen } from "@tauri-apps/api/event";
+import { seedDb } from "./db";
+import YeastDashboard from "./components/Dashboard/yeasts/YeastDashboard";
 
 export interface Additive {
   name: string;
@@ -58,6 +62,44 @@ export type Opened = {
 };
 
 function App() {
+  useEffect(() => {
+    seedDb();
+  }, []);
+
+  const navigate = useNavigate();
+  const [filePath, setFilePath] = useState<string | null>(null);
+  useEffect(() => {
+    const root = document.querySelector("#root");
+    const unlisten = listen("tauri://file-drop", (event) => {
+      if (event.payload) {
+        const [filePath] = event.payload as string[];
+        if (root) {
+          root.classList.remove("blur");
+        }
+
+        if (filePath.endsWith(".mead")) {
+          setFilePath(filePath);
+          navigate("/");
+        } else alert("Please select a valid .mead file");
+      }
+    });
+
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }, []);
+  useEffect(() => {
+    const root = document.querySelector("#root");
+    const unlisten = listen("tauri://file-drop-hover", () => {
+      if (root) {
+        root.classList.add("blur");
+      }
+    });
+
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }, []);
   const [isMetric, setIsMetric] = useLocalStorage("metric", false);
   const [theme, setTheme] = useLocalStorage("theme", true);
 
@@ -110,7 +152,7 @@ function App() {
       <main className="flex items-center justify-center w-full min-h-[100vh] bg-secondary">
         <Routes>
           <Route
-            path="/"
+            path="/home"
             element={
               <Home
                 recipeData={recipeData}
@@ -156,7 +198,21 @@ function App() {
               />
             }
           />
+          <Route
+            path="/"
+            element={
+              <LocalRecipe
+                ingredientsList={ingredientsList}
+                setIngredientsList={setIngredientsList}
+                token={token}
+                userId={user?.id || null}
+                filePath={filePath}
+              />
+            }
+          />
+          <Route path="/yeasts/*" element={<YeastDashboard />} />
         </Routes>
+
         <BottomBar />
       </main>
     </>

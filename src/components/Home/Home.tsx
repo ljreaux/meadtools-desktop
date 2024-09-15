@@ -31,6 +31,8 @@ import Notes from "./Notes";
 import SaveRecipeForm from "./SaveRecipeForm";
 import ResetButton from "./ResetButton";
 import { Button } from "../ui/button";
+import { open, save } from "@tauri-apps/api/dialog";
+import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 
 export default function Home({
   recipeData,
@@ -217,6 +219,33 @@ export default function Home({
     secondaryNotes,
   ]);
 
+  const saveLocally = async (name: string) => {
+    try {
+      const file = await save({
+        title: name,
+        filters: [{ name, extensions: ["mead"] }],
+      });
+      if (!file) throw new Error("Couldn't save file");
+      await writeTextFile(
+        file,
+        JSON.stringify({
+          name,
+          primaryNotes,
+          secondaryNotes,
+          recipeData,
+          nutrientData: data,
+          nuteInfo,
+          yanContribution,
+          yanFromSource,
+          advanced,
+        })
+      );
+      console.log("File saved successfully:", file);
+    } catch (err) {
+      console.error("Error saving file:", err);
+    }
+  };
+
   const { next, back, goTo, step, currentStepIndex, steps } = useMultiStepForm([
     <RecipeBuilder
       {...recipeData}
@@ -303,12 +332,18 @@ export default function Home({
     </>,
     <>
       {!token ? (
-        <Link
-          to={"/login"}
-          className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
-        >
-          {t("recipeForm.login")}
-        </Link>
+        <>
+          <Link
+            to={"/login"}
+            className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
+          >
+            {t("recipeForm.login")}
+          </Link>
+          OR
+          <Button variant={"secondary"} onClick={() => saveLocally("test")}>
+            Save Recipe Locally
+          </Button>
+        </>
       ) : (
         <SaveRecipeForm
           recipeData={recipeData}

@@ -1,9 +1,13 @@
 import { API_URL } from "../main";
+import { getAllYeasts as fetchYeasts, deleteYeast as deleteYeastById } from '../db/index'
+import { Yeast } from "@/components/Nutrients/MainInputs";
 
-export default async function getAllYeasts() {
-  const result = await fetch(`${API_URL}/yeasts`);
-  const yeasts = await result.json();
-  return yeasts;
+export default async function getAllYeasts(): Promise<Yeast[]> {
+  const yeasts = await fetchYeasts()
+  return (yeasts as Yeast[]).sort();
+}
+export async function deleteYeast(id: string) {
+  return await deleteYeastById(id)
 }
 
 export const deleteRecipe = async (recipeId: number, token: string | null) => {

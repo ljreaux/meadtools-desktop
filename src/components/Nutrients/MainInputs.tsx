@@ -77,19 +77,19 @@ export default function MainInputs({
     async function getYeasts() {
       try {
         const allYeasts = await getAllYeasts();
-        const Lalvin: [] = await allYeasts.filter(
+        const Lalvin = allYeasts.filter(
           (yeast: Yeast) => yeast.brand == "Lalvin"
         );
-        const Fermentis = await allYeasts.filter(
+        const Fermentis = allYeasts.filter(
           (yeast: Yeast) => yeast.brand == "Fermentis"
         );
-        const MangroveJack = await allYeasts.filter(
+        const MangroveJack = allYeasts.filter(
           (yeast: Yeast) => yeast.brand == "Mangrove Jack"
         );
         const RedStar = allYeasts.filter(
           (yeast: Yeast) => yeast.brand == "Red Star"
         );
-        const Other = await allYeasts.filter(
+        const Other = allYeasts.filter(
           (yeast: Yeast) => yeast.brand == "Other"
         );
 

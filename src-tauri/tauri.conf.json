@@ -12,7 +12,7 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false
+      "all": true
     },
     "bundle": {
       "active": true,
@@ -62,5 +62,10 @@
         "width": 800
       }
     ]
+  },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:meadtools.db"]
+    }
   }
 }

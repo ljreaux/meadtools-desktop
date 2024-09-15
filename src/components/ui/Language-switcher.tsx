@@ -23,8 +23,13 @@ function LanguageSwitcher() {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectItem value="en">EN</SelectItem>
-          <SelectItem value="de">DE</SelectItem>
+          {i18n.languages.map((language) => {
+            return (
+              <SelectItem key={language} value={language}>
+                {language.toUpperCase()}
+              </SelectItem>
+            );
+          })}
         </SelectGroup>
       </SelectContent>
     </Select>

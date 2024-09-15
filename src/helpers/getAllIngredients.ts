@@ -1,7 +1,13 @@
-import { API_URL } from "../main";
+import { IngredientListItem } from '@/components/Home/Ingredient';
+import { getAllIngredients as fetchIng, deleteIngredient as deleteIng } from '../db/index'
 
-export default async function getAllIngredients() {
-  const result = await fetch(`${API_URL}/ingredients`);
-  const ingredients = await result.json();
-  return ingredients;
+export default async function getAllIngredients(): Promise<IngredientListItem[]> {
+  const ingredients = await fetchIng();
+  return (ingredients as IngredientListItem[]);
+}
+
+export async function deleteIngredient(id: string) {
+
+  return await deleteIng(id)
+
 }
