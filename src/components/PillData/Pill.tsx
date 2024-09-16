@@ -1,6 +1,6 @@
 import readXlsxFile from "read-excel-file";
 import { open } from "@tauri-apps/api/dialog";
-import { readBinaryFile } from "@tauri-apps/api/fs";
+import { readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -10,6 +10,9 @@ import {
   SelectValue,
 } from "../ui/select";
 import { HydrometerData } from "./LineChart";
+import { calcABV } from "@/hooks/useAbv";
+import convertToJson from "read-excel-file/map";
+import { parse } from "papaparse";
 
 const pillSchema = {
   Date: {
@@ -28,7 +31,7 @@ const pillSchema = {
     prop: "signalStrength",
     type: Number,
   },
-  Battery: {
+  Battry: {
     prop: "battery",
     type: Number,
   },
@@ -63,10 +66,40 @@ const tiltSchema = {
     optional: true,
   },
 };
+const tiltCsvSchema = {
+  Timepoint: {
+    prop: "date",
+    type: String,
+  },
+  SG: {
+    prop: "gravity",
+    type: String,
+  },
+
+  "Temp (°F)": {
+    prop: "temperature",
+    type: String,
+  },
+  "Temp (°C)": {
+    prop: "temperature",
+    type: String,
+  },
+
+  Beer: {
+    prop: "name",
+    type: String,
+  },
+  Comment: {
+    prop: "comment",
+    type: String,
+    optional: true,
+  },
+};
 export type FileData = {
   date: string;
   temperature: number;
   gravity: number;
+  abv: number;
   signalStrength?: number;
   battery?: number;
 };
@@ -78,41 +111,80 @@ function Pill() {
   const [filePath, setFilePath] = useState<string | null>(null);
   const [fileType, setFileType] = useState<FileTypes>("pill");
   const [recipeName, setRecipeName] = useState<string | null>(null);
+  const [tempUnits, setTempUnits] = useState<"C" | "F">("F");
 
-  const schema = fileType === "tilt" ? tiltSchema : pillSchema;
+  const schema =
+    fileType === "tilt" && filePath?.endsWith("xlsx")
+      ? tiltSchema
+      : fileType === "tilt"
+      ? tiltCsvSchema
+      : pillSchema;
 
   const findFilePath = async () => {
     const file = await open({
-      filters: [{ name: "Pill", extensions: ["xlsx"] }],
+      filters: [{ name: "Pill", extensions: ["xlsx", "csv"] }],
       multiple: false,
     });
-    console.log(file);
+
     if (file) {
       setFilePath(file as string);
     }
   };
 
+  const handleFile = (file: any) => {
+    const { rows } = file;
+    const sgIndex = fileType === "tilt" ? rows.length - 1 : 0;
+    const og = rows[sgIndex].gravity as number;
+
+    const recipeName = rows[0].name as string | undefined;
+    if (recipeName) setRecipeName(recipeName);
+    else setRecipeName(null);
+
+    const parsedData = rows.map((row: any) => {
+      const abv = Math.round(calcABV(og, row.gravity as number) * 1000) / 1000;
+
+      const rowCopy = {
+        ...row,
+        temperature: Number(row.temperature),
+        gravity: Number(row.gravity),
+        date: new Date(row.date as string).toISOString(),
+        abv,
+      } as FileData & { name?: string };
+
+      if (row.name) delete rowCopy.name;
+
+      return rowCopy;
+    });
+    if (fileType === "tilt") parsedData.reverse();
+    return parsedData;
+  };
+
   useEffect(() => {
     (async () => {
       if (filePath) {
-        const binary = await readBinaryFile(filePath);
-        const file = await readXlsxFile(binary, { schema });
-        if (file && !file.errors.length) {
-          const { rows } = file;
-          const recipeName = rows[0].name as string | undefined;
-          if (recipeName) setRecipeName(recipeName);
-          const parsedData = rows.map((row) => {
-            const rowCopy = {
-              ...row,
-              date: new Date(row.date as string).toISOString(),
-            } as FileData & { name?: string };
+        if (filePath.endsWith("xlsx")) {
+          const binary = await readBinaryFile(filePath);
+          const parsed = await readXlsxFile(binary);
+          if (fileType === "tilt") {
+            const tempUnits = parsed[4][1];
+            setTempUnits(tempUnits === "Fahrenheit" ? "F" : "C");
+          }
+          const file = convertToJson(parsed, schema) as any;
 
-            if (row.name) delete rowCopy.name;
-
-            return rowCopy;
-          });
-          if (fileType === "tilt") parsedData.reverse();
-          setData(parsedData);
+          if (file && !file.errors.length) {
+            const parsedData = handleFile(file);
+            setData(parsedData);
+          }
+        } else {
+          const text = await readTextFile(filePath);
+          const parsed: { data: any[]; errors: any[]; meta: {} } = parse(text);
+          const tempUnits = parsed.data[4][1];
+          setTempUnits(tempUnits === "Fahrenheit" ? "F" : "C");
+          const file = convertToJson(parsed.data, schema) as any;
+          if (file && !file.errors.length) {
+            const parsedData = handleFile(file);
+            setData(parsedData);
+          }
         }
       }
     })();
@@ -132,9 +204,29 @@ function Pill() {
           <SelectItem value="tilt">Tilt</SelectItem>
         </SelectContent>
       </Select>
+      {fileType === "pill" && (
+        <Select
+          value={tempUnits}
+          onValueChange={(val: "C" | "F") => setTempUnits(val)}
+        >
+          <SelectTrigger>
+            <SelectValue></SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="F">°F</SelectItem>
+            <SelectItem value="C">°C</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
       <button onClick={findFilePath}>Open {fileType} file</button>
 
-      {data && <HydrometerData chartData={data} name={recipeName || ""} />}
+      {data && (
+        <HydrometerData
+          chartData={data}
+          name={recipeName || ""}
+          tempUnits={tempUnits}
+        />
+      )}
     </div>
   );
 }
