@@ -18,6 +18,7 @@ import LocalRecipe from "./components/Recipes/LocalRecipe";
 import { listen } from "@tauri-apps/api/event";
 import { seedDb } from "./db";
 import YeastDashboard from "./components/Dashboard/yeasts/YeastDashboard";
+import Pill from "./components/PillData/Pill";
 
 export interface Additive {
   name: string;
@@ -62,11 +63,13 @@ export type Opened = {
 };
 
 function App() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     seedDb();
+    navigate("/pill");
   }, []);
 
-  const navigate = useNavigate();
   const [filePath, setFilePath] = useState<string | null>(null);
   useEffect(() => {
     const root = document.querySelector("#root");
@@ -211,6 +214,7 @@ function App() {
             }
           />
           <Route path="/yeasts/*" element={<YeastDashboard />} />
+          <Route path="/pill" element={<Pill />} />
         </Routes>
 
         <BottomBar />

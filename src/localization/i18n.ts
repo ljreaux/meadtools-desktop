@@ -3,8 +3,8 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import english from "../../public/locales/en/default.json"
 import german from "../../public/locales/de/default.json"
-import french from "../../public/locales/fr/default.json"
-import polish from "../../public/locales/pl/default.json"
+// import french from "../../public/locales/fr/default.json"
+// import polish from "../../public/locales/pl/default.json"
 
 
 i18n
