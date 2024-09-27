@@ -2,8 +2,8 @@ import { deleteRecipe, getAllRecipes, updateRecipe } from "@/db";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, buttonVariants } from "../ui/button";
-import { open } from "@tauri-apps/api/dialog";
-import { exists } from "@tauri-apps/api/fs";
+import { open } from "@tauri-apps/plugin-dialog";
+import { exists } from "@tauri-apps/plugin-fs";
 import Title from "../Title";
 import { useTranslation } from "react-i18next";
 import {

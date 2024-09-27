@@ -33,8 +33,8 @@ import ResetButton from "../Home/ResetButton";
 import { MdPictureAsPdf } from "react-icons/md";
 import { useToast } from "../ui/use-toast";
 import { Button } from "../ui/button";
-import { open } from "@tauri-apps/api/dialog";
-import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { open } from "@tauri-apps/plugin-dialog";
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import Pill from "../PillData/Pill";
 
 export default function LocalRecipe({

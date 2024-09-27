@@ -1,6 +1,6 @@
 import readXlsxFile, { Row } from "read-excel-file";
-import { open } from "@tauri-apps/api/dialog";
-import { readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
+import { open } from "@tauri-apps/plugin-dialog";
+import { readFile, readTextFile } from "@tauri-apps/plugin-fs";
 import { useEffect, useState } from "react";
 import {
   Select,
@@ -183,7 +183,7 @@ function Pill({
       else setFileType("iSpindel");
       return parsed;
     }
-    const binary = await readBinaryFile(file);
+    const binary = await readFile(file);
     const parsed = await readXlsxFile(binary);
 
     let isPill = false;
