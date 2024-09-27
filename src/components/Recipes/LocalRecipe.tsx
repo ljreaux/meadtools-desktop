@@ -27,23 +27,20 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 import Title from "../Title";
 import { Link, useSearchParams } from "react-router-dom";
-import { API_URL } from "../../main";
 import Notes from "../Home/Notes";
 import SaveRecipeForm from "../Home/SaveRecipeForm";
-import UpdateRecipeForm from "./UpdateRecipeForm";
 import ResetButton from "../Home/ResetButton";
 import { MdPictureAsPdf } from "react-icons/md";
 import { useToast } from "../ui/use-toast";
-import { ToastAction } from "@radix-ui/react-toast";
 import { Button } from "../ui/button";
-import { open, save } from "@tauri-apps/api/dialog";
+import { open } from "@tauri-apps/api/dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import Pill from "../PillData/Pill";
 
 export default function LocalRecipe({
   ingredientsList,
   setIngredientsList,
   token,
-  userId,
   filePath: path,
 }: {
   ingredientsList: List;
@@ -52,13 +49,12 @@ export default function LocalRecipe({
   userId: number | null;
   filePath: string | null;
 }) {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { i18n, t } = useTranslation();
   const language = i18n.language;
   const isMetric = language !== "en" && language !== "en-US";
 
   const [recipeName, setRecipeName] = useState("");
-  const [updateForm, setUpdateForm] = useState(true);
   const [, setBlendSG] = useState([0.996, 0.996]);
   const [filePath, setFilePath] = useState<null | string>(path);
 
@@ -78,6 +74,7 @@ export default function LocalRecipe({
     },
     additives: [{ name: "", amount: 0, unit: "g" }],
   });
+
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const [secondaryVolume, setSecondaryVolume] = useState(0);
   const [advanced, setAdvanced] = useState(false);
@@ -190,6 +187,20 @@ export default function LocalRecipe({
     RedStar: [],
     Other: [],
   });
+  const [searchParams] = useSearchParams();
+  const pdf = !!searchParams.get("pdf");
+  const hydro = !!searchParams.get("hydro");
+  const hydroPath = searchParams.get("hydroPath") ?? undefined;
+  const recipeId = searchParams.get("recipeId") ?? undefined;
+
+  useEffect(() => {
+    if (path)
+      fileDialog(path).then(() => {
+        setLoading(false);
+        if (pdf) goTo(steps.length - 3);
+        if (hydro) goTo(steps.length - 1);
+      });
+  }, [path]);
 
   const [instance, setInstance] = usePDF({
     document: (
@@ -221,15 +232,19 @@ export default function LocalRecipe({
 
   const { next, back, goTo, step, currentStepIndex, steps } = useMultiStepForm([
     <>
-      <Button onClick={() => fileDialog()} variant={"secondary"}>
-        Open File
+      <Button
+        onClick={() => fileDialog()}
+        variant={"secondary"}
+        className="my-4"
+      >
+        {t("desktop.open")}
       </Button>
-      OR
+      {t("accountPage.or")}
       <Link
         to={"/home"}
         className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
       >
-        Go to recipe builder
+        {t("desktop.goTo")}
       </Link>
     </>,
     <RecipeBuilder
@@ -344,9 +359,16 @@ export default function LocalRecipe({
         />
       )}
     </>,
+    <Pill
+      name={recipeName}
+      file_path={filePath as string}
+      hydroPath={hydroPath}
+      id={parseInt(recipeId ?? "0")}
+    />,
   ]);
 
   async function fileDialog(path?: string) {
+    setLoading(true);
     function cocatNotes(notes: string[]): string[][] {
       const newNotes = [];
       while (notes.length) newNotes.push(notes.splice(0, 2));
@@ -394,10 +416,6 @@ export default function LocalRecipe({
     }
   }
 
-  useEffect(() => {
-    if (path) fileDialog(path);
-  }, [path]);
-
   const saveLocally = async (file: string) => {
     try {
       await writeTextFile(
@@ -414,7 +432,16 @@ export default function LocalRecipe({
           advanced,
         })
       );
-      toast({ description: `File saved successfully: ${file}` });
+      alert("File saved successfully: " + file);
+
+      setFilePath(file);
+      const fileName = file.substring(
+        file.lastIndexOf("/") + 1,
+        file.length - ".mead".length
+      );
+      setRecipeName(fileName);
+
+      next();
     } catch (err) {
       toast({
         description: `Error saving file: ${err}`,
@@ -422,12 +449,6 @@ export default function LocalRecipe({
       });
     }
   };
-
-  const [searchParams] = useSearchParams();
-  const pdf = searchParams.get("pdf");
-  useEffect(() => {
-    pdf && goTo(steps.length - 2);
-  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center w-full mt-12 mb-12">
@@ -461,19 +482,19 @@ export default function LocalRecipe({
               </Button>
             )}
           </div>
-          <div className="w-1/4 flex items-center justify-center  mb-[3rem]">
+          <div className="md:w-1/4 md:max-w-56 flex items-center justify-between mb-[3rem]">
             <ResetButton
               setRecipeData={setRecipeData}
               setData={setData}
               recipeData={recipeData}
               setPrimaryNotes={setPrimaryNotes}
               setSecondaryNotes={setSecondaryNotes}
-            />{" "}
-            {currentStepIndex !== steps.length - 2 && (
+            />
+            {currentStepIndex !== steps.length - 3 && (
               <Button
                 variant={"secondary"}
                 className="flex-1"
-                onClick={() => goTo(steps.length - 2)}
+                onClick={() => goTo(steps.length - 3)}
               >
                 <div className="flex items-center justify-center w-full h-full text-2xl">
                   <MdPictureAsPdf />

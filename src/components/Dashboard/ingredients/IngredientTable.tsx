@@ -1,3 +1,4 @@
+"use client";
 import { TableCell, TableRow, TableBody } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,65 +14,68 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
-
-import { Yeast } from "@/components/Nutrients/MainInputs";
 import { useNavigate } from "react-router-dom";
-import { deleteYeast } from "@/helpers/getAllYeasts";
+import { deleteIngredient } from "@/db";
 
-export default function YeastTable({
-  yeasts,
-  setYeasts,
+export default function IngredientTable({
+  ingredients,
+  setIngredients,
 }: {
-  yeasts: Yeast[];
-  setYeasts: (yeast: Yeast[]) => void;
+  ingredients: {
+    id: number;
+    name: string;
+    sugar_content: number;
+    water_content: number;
+    category: string;
+  }[];
+  setIngredients: (
+    recipes: {
+      id: number;
+      name: string;
+      sugar_content: number;
+      water_content: number;
+      category: string;
+    }[]
+  ) => void;
 }) {
-  const deleteYeastListItem = (i: number, id: number) => {
-    deleteYeast(id.toString())
+  const nav = useNavigate();
+  const deleteIngredientListItem = (i: number, id: number) => {
+    deleteIngredient(id.toString())
       .then((data) => {
         if (data.rowsAffected === 0) throw new Error(`Could not delete`);
-        else toast({ description: "Yeast deleted successfully." });
+        else toast({ description: "Ingredient deleted successfully." });
       })
-
-      .then(() => setYeasts(yeasts.filter((_, index) => index !== i)))
-      .catch(() => toast({ description: "Could Not Delete Yeast" }));
+      .then(() => setIngredients(ingredients.filter((_, index) => index !== i)))
+      .catch((err) =>
+        toast({ description: err.message, variant: "destructive" })
+      );
   };
-
-  const nav = useNavigate();
-
   return (
     <TableBody>
-      {yeasts.map((yeast, i) => (
-        <TableRow key={yeast.id}>
-          <TableCell className="font-medium">{yeast.id}</TableCell>
+      {ingredients.map((ing, i) => (
+        <TableRow key={ing.id}>
+          <TableCell className="font-medium">{ing.id}</TableCell>
           <TableCell>
-            <Input value={yeast.name} disabled />
+            <Input value={ing.name} disabled />
           </TableCell>
           <TableCell>
-            <Input value={yeast.brand} disabled />
+            <Input value={ing.sugar_content} disabled />
           </TableCell>
           <TableCell>
-            <Input value={yeast.nitrogen_requirement} disabled />
+            <Input value={ing.water_content} disabled />
           </TableCell>
           <TableCell>
-            <Input value={yeast.tolerance} disabled />
-          </TableCell>
-          <TableCell>
-            <Input value={yeast.low_temp} disabled />
-          </TableCell>
-          <TableCell>
-            <Input value={yeast.high_temp} disabled />
+            <Input value={ing.category} disabled />
           </TableCell>
           <TableCell className="flex items-center gap-2">
             <Button
-              onClick={() => {
-                nav(`/yeasts/edit/${yeast.id}`);
-              }}
+              onClick={() => nav(`/ingredients/edit/${ing.id}`)}
               variant="secondary"
             >
               Edit
             </Button>
             <DeleteButton
-              handleClick={() => deleteYeastListItem(i, yeast.id)}
+              handleClick={() => deleteIngredientListItem(i, ing.id)}
             />
           </TableCell>
         </TableRow>
@@ -93,7 +97,7 @@ const DeleteButton = ({ handleClick }: { handleClick: () => void }) => {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
-            yeast.
+            ingredient.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

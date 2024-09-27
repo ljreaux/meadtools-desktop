@@ -31,8 +31,12 @@ import Notes from "./Notes";
 import SaveRecipeForm from "./SaveRecipeForm";
 import ResetButton from "./ResetButton";
 import { Button } from "../ui/button";
-import { open, save } from "@tauri-apps/api/dialog";
-import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { save } from "@tauri-apps/api/dialog";
+import { writeTextFile } from "@tauri-apps/api/fs";
+import { createRecipeLink } from "@/db";
+import { Input } from "../ui/input";
+import Pill from "../PillData/Pill";
+import { toast } from "../ui/use-toast";
 
 export default function Home({
   recipeData,
@@ -49,6 +53,9 @@ export default function Home({
   token: string | null;
   setBlendFG: Dispatch<SetStateAction<number[]>>;
 }) {
+  const [name, setName] = useState("");
+  const [filePath, setFilePath] = useState("");
+  const [recipeId, setRecipeId] = useState(0);
   const [primaryNotes, setPrimaryNotes] = useLocalStorage<string[][]>(
     "primaryNotes",
     [["", ""]]
@@ -219,7 +226,7 @@ export default function Home({
     secondaryNotes,
   ]);
 
-  const saveLocally = async (name: string) => {
+  const saveLocally = async (file: string) => {
     try {
       const file = await save({
         title: name,
@@ -240,9 +247,23 @@ export default function Home({
           advanced,
         })
       );
-      console.log("File saved successfully:", file);
+      alert("File saved successfully: " + file);
+
+      setFilePath(file);
+      const fileName = file.substring(
+        file.lastIndexOf("/") + 1,
+        file.length - ".mead".length
+      );
+      const { lastInsertId } = await createRecipeLink(name, file);
+      setName(fileName);
+      setRecipeId(lastInsertId);
+
+      next();
     } catch (err) {
-      console.error("Error saving file:", err);
+      toast({
+        description: `Error saving file: ${err}`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -340,7 +361,8 @@ export default function Home({
             {t("recipeForm.login")}
           </Link>
           OR
-          <Button variant={"secondary"} onClick={() => saveLocally("test")}>
+          <Input value={name} onChange={(e) => setName(e.target.value)}></Input>
+          <Button variant={"secondary"} onClick={() => saveLocally(name)}>
             Save Recipe Locally
           </Button>
         </>
@@ -357,6 +379,7 @@ export default function Home({
         />
       )}
     </>,
+    <Pill name={name} file_path={filePath as string} id={recipeId} />,
   ]);
   return (
     <div className="flex flex-col items-center justify-center w-full my-12">
@@ -371,7 +394,7 @@ export default function Home({
             {t("buttonLabels.back")}
           </Button>
         )}
-        {currentStepIndex < steps.length - 1 && (
+        {currentStepIndex < steps.length - 2 && (
           <Button
             variant={"secondary"}
             className="flex-1 w-full"
@@ -395,11 +418,11 @@ export default function Home({
           setPrimaryNotes={setPrimaryNotes}
           setSecondaryNotes={setSecondaryNotes}
         />
-        {currentStepIndex !== steps.length - 2 && (
+        {currentStepIndex !== steps.length - 3 && (
           <Button
             variant={"secondary"}
             className="flex-1"
-            onClick={() => goTo(steps.length - 2)}
+            onClick={() => goTo(steps.length - 3)}
           >
             <div className="flex items-center justify-center w-full h-full text-2xl">
               <MdPictureAsPdf />

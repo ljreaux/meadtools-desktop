@@ -11,10 +11,8 @@ async function dropTables() {
   try {
     console.log("Starting drop tables");
     await db.execute(`
-    DROP TABLE IF EXISTS recipes;
-    DROP TABLE IF EXISTS users;
     DROP TABLE IF EXISTS ingredients;
-    DROP TABLE IF EXISTS ingredient_categories;
+    DROP TABLE IF EXISTS recipe_links;
     DROP TABLE IF EXISTS yeasts;`);
 
     console.log("Tables dropped");
@@ -44,6 +42,13 @@ async function createTables() {
       tolerance numeric NOT NULL,
       low_temp numeric NOT NULL,
       high_temp numeric NOT NULL
+    );
+
+    CREATE TABLE recipe_links (
+      id INTEGER PRIMARY KEY,
+      name varchar(255) NOT NULL,
+      file_path varchar(255) NOT NULL,
+      hydrometer_data_path varchar(255)
     );
 
     `);
@@ -113,6 +118,22 @@ export async function createIngredient({
   }
 }
 
+export async function createRecipeLink(name: string, file_path: string, hydrometer_data_path: string | null = null) {
+  try {
+    const recipe = await db.execute(
+      `
+      INSERT INTO recipe_links (name, file_path, hydrometer_data_path)
+      VALUES ($1, $2, $3)
+      RETURNING *;
+    `,
+      [name, file_path, hydrometer_data_path]
+    );
+    return recipe;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function createInitialIngredients() {
   try {
     console.log("Creating initial ingredients...");
@@ -130,7 +151,7 @@ async function createInitialIngredients() {
 async function createInitialYeasts() {
   try {
     for (const [key, value] of Object.entries(YEASTS)) {
-      const values = await Promise.all(
+      await Promise.all(
         value.map(async (yeast: Yeast) => {
           const createdYeast = await createYeast({ ...yeast, brand: key });
           return createdYeast;
@@ -168,16 +189,61 @@ export async function updateIngredient(id: string, fields = {}) {
   }
 }
 
-export async function getAllIngredients() {
+export async function getAllIngredients(): Promise<any[]> {
   try {
     const ingredients = await db.select(`
       SELECT * FROM ingredients;
     `);
-    return ingredients;
+    return ingredients as any[];
   } catch (error) {
     return []
   }
 }
+
+export async function getAllRecipes(): Promise<any[]> {
+  try {
+    const recipes = await db.select(`
+      SELECT * FROM recipe_links;
+    `);
+    return recipes as [];
+  } catch (error) {
+    return []
+  }
+}
+
+export async function getRecipe(name: string) {
+  try {
+    const recipe
+      = await db.select(`
+      SELECT * FROM recipe_links WHERE name=${name};
+    `);
+    if (!recipe)
+      throw {
+        name: "RecipeNotFoundError",
+        message: "Recipe not found",
+      };
+    return recipe;
+  } catch (error) {
+    throw error;
+  }
+}
+export async function getRecipeById(id: string): Promise<any> {
+  try {
+    const recipe
+      = await db.select(`
+      SELECT * FROM recipe_links WHERE id=${id};
+    `);
+    if (!recipe)
+      throw {
+        id: "RecipeNotFoundError",
+        message: "Recipe not found",
+      };
+    return recipe;
+  } catch (error) {
+    throw error;
+  }
+}
+
 
 export async function getIngredient(id: string) {
   try {
@@ -190,7 +256,7 @@ export async function getIngredient(id: string) {
         name: "IngredientNotFoundError",
         message: "Ingredient not found",
       };
-    return ingredient;
+    return (ingredient as any[])[0];
   } catch (error) {
     throw error;
   }
@@ -275,12 +341,58 @@ export async function updateYeast(id: string, fields = {}) {
   }
 }
 
-export async function getAllYeasts() {
+export async function updateRecipe(id: string, { file_path, hydrometer_data_path }: {
+  file_path: string;
+  hydrometer_data_path: string | null
+}) {
+
+  try {
+    const recipe
+      = await db.execute(
+        `
+    UPDATE recipe_links
+    SET file_path=$1, hydrometer_data_path=$2
+    WHERE id=$3
+    RETURNING *;
+  `,
+        [file_path, hydrometer_data_path, id]
+      );
+
+    return recipe;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateHydro(id: string, { hydrometer_data_path }: {
+  hydrometer_data_path: string | null
+}) {
+
+  try {
+    const recipe
+      = await db.execute(
+        `
+    UPDATE recipe_links
+    SET hydrometer_data_path=$1
+    WHERE id=$2
+    RETURNING *;
+  `,
+        [hydrometer_data_path, id]
+      );
+
+    return recipe;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+export async function getAllYeasts(): Promise<Yeast[]> {
   try {
     const yeasts = await db.select(`
       SELECT * FROM yeasts;
     `);
-    return yeasts;
+    return yeasts as Yeast[];
   } catch (error) {
     return [];
   }
@@ -360,6 +472,21 @@ export async function deleteYeast(id: string) {
     throw error;
   }
 }
+export async function deleteRecipe(id: string) {
+  try {
+    const recipe = await db.execute(
+      `
+      DELETE FROM recipe_links
+      WHERE id=$1
+      RETURNING *;
+    `,
+      [id]
+    );
+    return recipe;
+  } catch (error) {
+    throw error;
+  }
+}
 
 
 async function rebuildDB() {
@@ -384,4 +511,35 @@ export const seedDb = async () => {
   if (!dbSeeded) {
     await rebuildDB();
   }
+}
+
+export const resetYeasts = async () => {
+  await db.execute(`DROP TABLE IF EXISTS yeasts;`);
+  await db.execute(`
+    CREATE TABLE yeasts (
+      id INTEGER PRIMARY KEY,
+      brand varchar(255) NOT NULL,
+      name varchar(255) NOT NULL,
+      nitrogen_requirement varchar(255) NOT NULL,
+      tolerance numeric NOT NULL,
+      low_temp numeric NOT NULL,
+      high_temp numeric NOT NULL
+    );
+    `);
+  await createInitialYeasts();
+  console.log('Yeasts reset');
+}
+export const resetIngredients = async () => {
+  await db.execute(`DROP TABLE IF EXISTS ingredients;`);
+  await db.execute(`
+     CREATE TABLE ingredients (
+      id INTEGER PRIMARY KEY,
+      name varchar(255) NOT NULL,
+      sugar_content numeric NOT NULL,
+      water_content numeric NOT NULL,
+      category varchar(255) NOT NULL
+    );
+    `);
+  await createInitialIngredients();
+  console.log('Ingredients reset');
 }

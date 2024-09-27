@@ -1,11 +1,14 @@
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
-import english from "../../public/locales/en/default.json"
-import german from "../../public/locales/de/default.json"
-// import french from "../../public/locales/fr/default.json"
-// import polish from "../../public/locales/pl/default.json"
+import axios from "axios";
 
+const { data: english } = await axios.get("/locales/en/default.json");
+const { data: yeastEn } = await axios.get('/locales/en/YeastTable.json')
+const { data: german } = await axios.get("/locales/de/default.json");
+const { data: yeastDe } = await axios.get('/locales/de/YeastTable.json')
+// const { data: french } = await axios.get("/locales/fr/default.json");
+// const { data: polish } = await axios.get("/locales/pl/default.json");
 
 i18n
   .use(LanguageDetector)
@@ -17,14 +20,18 @@ i18n
     resources: {
       en: {
         translation: {
-          greeting: "Hello",
-          ...english
+          ...english,
+          yeastTable: {
+            ...yeastEn
+          }
         },
       },
       de: {
         translation: {
-          greeting: "Hallo",
-          ...german
+          ...german,
+          yeastTable: {
+            ...yeastDe
+          }
         },
       },
       // fr: {

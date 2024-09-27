@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,26 +18,22 @@ import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
-import { createYeast } from "@/db";
+import { createIngredient } from "@/db";
+
+export const API_URL = "https://mead-tools-api.vercel.app/api";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
-    message: "Yeast name must be at least 2 characters.",
+    message: "Ingredient name must be at least 2 characters.",
   }),
-  nitrogenRequirement: z.string().min(2, {
-    message: "Yeast nitrogen requirement must be at least 2 characters.",
+  sugarContent: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  waterContent: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  category: z.string().min(2, {
+    message: "Ingredient category must be at least 2 characters.",
   }),
-  tolerance: z.string().min(2, {
-    message: "Yeast nitrogen requirement must be at least 2 characters.",
-  }),
-  brand: z.string().min(2, {
-    message: "Yeast brand must be at least 2 characters.",
-  }),
-  lowTemp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
-  highTemp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
 });
 
-export function NewYeastForm() {
+export function NewIngredientForm() {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -43,26 +41,24 @@ export function NewYeastForm() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
-      brand: "Lalvin",
-      nitrogenRequirement: "Low",
-      tolerance: "",
-      lowTemp: 0,
-      highTemp: 0,
+      sugarContent: 0,
+      waterContent: 0,
+      category: "",
     },
   });
 
   async function onSubmit(body: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
-      const ingredient = await createYeast(body);
-
+      const ingredient = await createIngredient(body);
+      console.log(ingredient);
       if (!ingredient) throw new Error();
-      toast({ description: "Yeast successfully created." });
-      nav("/yeasts");
+      toast({ description: "Ingredient successfully created." });
+      nav("/ingredients/");
     } catch (err) {
       console.error(err);
       toast({
-        description: "Failed to create yeast.",
+        description: "Failed to create ingredient.",
         variant: "destructive",
       });
     } finally {
@@ -73,7 +69,7 @@ export function NewYeastForm() {
   return (
     <Form {...form}>
       <div className="flex flex-col items-center py-20">
-        <h1 className="text-4xl">Add New Yeast</h1>
+        <h1 className="text-4xl">Add New Ingredient</h1>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-2/3 space-y-6"
@@ -85,7 +81,7 @@ export function NewYeastForm() {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="EC-Whatever..." {...field} />
+                  <Input placeholder="Honey..." {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -94,52 +90,10 @@ export function NewYeastForm() {
           />
           <FormField
             control={form.control}
-            name="brand"
+            name="sugarContent"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Yeast Brand</FormLabel>
-                <FormControl>
-                  <Input placeholder="0" {...field} />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="nitrogenRequirement"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nitrogen Requirement</FormLabel>
-                <FormControl>
-                  <Input placeholder="14" {...field} />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="tolerance"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tolerance</FormLabel>
-                <FormControl>
-                  <Input placeholder="15" {...field} />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="lowTemp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Low Temp</FormLabel>
+                <FormLabel>Sugar Content</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -150,10 +104,10 @@ export function NewYeastForm() {
           />
           <FormField
             control={form.control}
-            name="highTemp"
+            name="waterContent"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>High Temp</FormLabel>
+                <FormLabel>Water Content</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -162,7 +116,20 @@ export function NewYeastForm() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Input placeholder="fruit" {...field} />
+                </FormControl>
 
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button type="submit" variant={"secondary"}>
             {loading ? <Spinner variant="small" /> : "Submit"}
           </Button>

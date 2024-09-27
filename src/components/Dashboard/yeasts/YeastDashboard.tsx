@@ -5,7 +5,7 @@ import { NewYeastForm } from "./NewYeastForm";
 
 function YeastDashboard() {
   return (
-    <div className="w-full h-full p-8 bg-background">
+    <div className="w-11/12 h-full p-8 my-24 bg-background rounded-2xl">
       <Routes>
         <Route path="/" element={<Yeasts />} />
         <Route path="/create" element={<NewYeastForm />} />{" "}

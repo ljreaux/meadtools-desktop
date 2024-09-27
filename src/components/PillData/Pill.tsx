@@ -1,4 +1,4 @@
-import readXlsxFile from "read-excel-file";
+import readXlsxFile, { Row } from "read-excel-file";
 import { open } from "@tauri-apps/api/dialog";
 import { readBinaryFile, readTextFile } from "@tauri-apps/api/fs";
 import { useEffect, useState } from "react";
@@ -13,6 +13,12 @@ import { HydrometerData } from "./LineChart";
 import { calcABV } from "@/hooks/useAbv";
 import convertToJson from "read-excel-file/map";
 import { parse } from "papaparse";
+import { updateRecipe } from "@/db";
+import { Link } from "react-router-dom";
+import { buttonVariants } from "../ui/button";
+
+type csvReturnType = { data: any[]; errors: any[]; meta: {} };
+type JSONType = { data: any[]; errors: any[] };
 
 const pillSchema = {
   Date: {
@@ -95,59 +101,149 @@ const tiltCsvSchema = {
     optional: true,
   },
 };
+const spindelSchema = {
+  log_time: {
+    prop: "date",
+    type: String,
+  },
+  gravity: {
+    prop: "gravity",
+    type: String,
+  },
+
+  temp: {
+    prop: "temperature",
+    type: String,
+  },
+  temp_format: {
+    prop: "tempUnit",
+    type: String,
+  },
+  log_id: {
+    prop: "name",
+    type: String,
+  },
+};
 export type FileData = {
   date: string;
-  temperature: number;
+  temperature?: number;
   gravity: number;
   abv: number;
   signalStrength?: number;
   battery?: number;
 };
 
-type FileTypes = "tilt" | "pill";
+type FileTypes = "tilt" | "pill" | "iSpindel" | "hydro";
 
-function Pill() {
+function Pill({
+  name,
+  file_path,
+  hydroPath,
+  id,
+}: {
+  name: string;
+  file_path: string;
+  hydroPath?: string;
+  id: number;
+}) {
+  const isXlsx = (filePath: string) => filePath.endsWith(".xlsx");
+  const isCsv = (filePath: string) => filePath.endsWith(".csv");
+  const isHydro = (filePath: string) => filePath.endsWith(".hydro");
+
   const [data, setData] = useState<FileData[] | null>(null);
-  const [filePath, setFilePath] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<FileTypes>("pill");
-  const [recipeName, setRecipeName] = useState<string | null>(null);
+  const [filePath, setFilePath] = useState<string | null>(hydroPath ?? null);
   const [tempUnits, setTempUnits] = useState<"C" | "F">("F");
+  const [enabled, setEnabled] = useState(true);
 
+  const [fileType, setFileType] = useState<FileTypes>("pill");
   const schema =
     fileType === "tilt" && filePath?.endsWith("xlsx")
       ? tiltSchema
       : fileType === "tilt"
       ? tiltCsvSchema
+      : fileType === "iSpindel"
+      ? spindelSchema
       : pillSchema;
+
+  const validateFileType = async (file: string) => {
+    if (isHydro(file)) {
+      setFileType("hydro");
+      const parsed = readTextFile(file);
+      return parsed;
+    }
+
+    if (isCsv(file)) {
+      let isTilt = true;
+      const text = await readTextFile(file);
+      const parsed: { data: any[]; errors: any[]; meta: {} } = parse(text);
+      if (parsed.data[0][0] !== "Report & Chart Settings:") {
+        isTilt = false;
+      }
+      if (isTilt) setFileType("tilt");
+      else setFileType("iSpindel");
+      return parsed;
+    }
+    const binary = await readBinaryFile(file);
+    const parsed = await readXlsxFile(binary);
+
+    let isPill = false;
+    const pillColumns = ["Date", "Temperature", "Gravity"];
+
+    pillColumns.forEach((column) => {
+      if (parsed[0].includes(column)) isPill = true;
+      else isPill = false;
+    });
+
+    if (isPill) setFileType("pill");
+    else setFileType("tilt");
+
+    return parsed;
+  };
 
   const findFilePath = async () => {
     const file = await open({
-      filters: [{ name: "Pill", extensions: ["xlsx", "csv"] }],
+      filters: [{ name: "Pill", extensions: ["xlsx", "csv", "hydro"] }],
       multiple: false,
     });
 
     if (file) {
       setFilePath(file as string);
+      updateRecipe(id.toString(), {
+        hydrometer_data_path: file as string,
+        file_path,
+      });
     }
   };
 
   const handleFile = (file: any) => {
     const { rows } = file;
+
+    if (fileType === "hydro") {
+      const parsed: string = handleFile(file as string);
+      return parsed;
+    }
+
     const sgIndex = fileType === "tilt" ? rows.length - 1 : 0;
-    const og = rows[sgIndex].gravity as number;
+    const og = rows?.[sgIndex].gravity as number;
+    if (rows[0].tempUnit) {
+      setTempUnits(rows[0].tempUnit as "C" | "F");
+    }
 
-    const recipeName = rows[0].name as string | undefined;
-    if (recipeName) setRecipeName(recipeName);
-    else setRecipeName(null);
+    const removeJunk = rows.filter((row: any) => row.gravity);
 
-    const parsedData = rows.map((row: any) => {
+    const parsedData = removeJunk.map((row: any) => {
       const abv = Math.round(calcABV(og, row.gravity as number) * 1000) / 1000;
+
+      const parsedDate =
+        fileType !== "iSpindel"
+          ? row.date
+          : row.date.replace(/T|\:\d\dZ/g, " ");
 
       const rowCopy = {
         ...row,
         temperature: Number(row.temperature),
         gravity: Number(row.gravity),
-        date: new Date(row.date as string).toISOString(),
+        date: new Date(parsedDate as string).toISOString(),
         abv,
       } as FileData & { name?: string };
 
@@ -160,41 +256,60 @@ function Pill() {
   };
 
   useEffect(() => {
-    (async () => {
-      if (filePath) {
-        if (filePath.endsWith("xlsx")) {
-          const binary = await readBinaryFile(filePath);
-          const parsed = await readXlsxFile(binary);
-          if (fileType === "tilt") {
-            const tempUnits = parsed[4][1];
-            setTempUnits(tempUnits === "Fahrenheit" ? "F" : "C");
-          }
-          const file = convertToJson(parsed, schema) as any;
+    const handleData = async () => {
+      if (!filePath) return;
+      try {
+        const parsed = await validateFileType(filePath);
+        if (isXlsx(filePath)) {
+          const typedParse = parsed as Row[];
+
+          const file = convertToJson(typedParse, schema) as unknown as JSONType;
 
           if (file && !file.errors.length) {
             const parsedData = handleFile(file);
             setData(parsedData);
           }
+
+          const tempUnits = typedParse[4][1];
+          if (fileType === "tilt")
+            setTempUnits(tempUnits === "Fahrenheit" ? "F" : "C");
+        } else if (fileType === "hydro") {
+          const data = await validateFileType(filePath);
+          const parsed = JSON.parse(data as string);
+          setData(parsed);
         } else {
-          const text = await readTextFile(filePath);
-          const parsed: { data: any[]; errors: any[]; meta: {} } = parse(text);
-          const tempUnits = parsed.data[4][1];
-          setTempUnits(tempUnits === "Fahrenheit" ? "F" : "C");
-          const file = convertToJson(parsed.data, schema) as any;
+          const parsedType = parsed as csvReturnType;
+
+          const file = convertToJson(
+            parsedType.data,
+            schema
+          ) as unknown as JSONType;
+
+          console.log(file);
+
           if (file && !file.errors.length) {
             const parsedData = handleFile(file);
             setData(parsedData);
           }
+
+          const tempUnits = parsedType.data[4][1];
+          if (fileType === "tilt")
+            setTempUnits(tempUnits === "Fahrenheit" ? "F" : "C");
         }
+      } finally {
+        setEnabled(false);
       }
-    })();
-  }, [filePath]);
+    };
+
+    handleData();
+  }, [filePath, fileType]);
 
   return (
     <div className="w-11/12">
       <Select
         value={fileType}
         onValueChange={(val: FileTypes) => setFileType(val)}
+        disabled={!enabled}
       >
         <SelectTrigger>
           <SelectValue></SelectValue>
@@ -202,6 +317,8 @@ function Pill() {
         <SelectContent>
           <SelectItem value="pill">Pill</SelectItem>
           <SelectItem value="tilt">Tilt</SelectItem>
+          <SelectItem value="iSpindel">iSpindel</SelectItem>
+          <SelectItem value="hydro">Hydrometer</SelectItem>
         </SelectContent>
       </Select>
       {fileType === "pill" && (
@@ -220,12 +337,23 @@ function Pill() {
       )}
       <button onClick={findFilePath}>Open {fileType} file</button>
 
-      {data && (
+      {data ? (
         <HydrometerData
           chartData={data}
-          name={recipeName || ""}
+          name={name || ""}
           tempUnits={tempUnits}
         />
+      ) : (
+        <>
+          {" "}
+          OR
+          <Link
+            to={`/manualEntry/${id}`}
+            className={buttonVariants({ variant: "secondary" })}
+          >
+            Enter Manually
+          </Link>
+        </>
       )}
     </div>
   );

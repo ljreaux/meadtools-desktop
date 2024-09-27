@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { RecipeData } from "../../App";
 import Title from "../Title";
 import { FaMinusSquare, FaPlusSquare } from "react-icons/fa";
@@ -240,6 +240,27 @@ export default function RecipeBuilder({
 
   const [loading, setLoading] = useState(true);
 
+  const scaleRecipe = (curVol: number, targetVol: number) => {
+    const scale = targetVol / curVol;
+
+    const newIngredients = ingredients.map((ing) => {
+      const newDetails = ing.details.map(
+        (det) => Math.round(det * scale * 1000) / 1000
+      );
+      return { ...ing, details: newDetails };
+    });
+    setRecipeData((prev) => {
+      const newAdditives = prev.additives.map((add) => ({
+        ...add,
+        amount: Math.round(add.amount * scale * 1000) / 1000,
+      }));
+
+      return { ...prev, ingredients: newIngredients, additives: newAdditives };
+    });
+    runBlends();
+  };
+
+  const volumeRef = useRef<HTMLInputElement>(null!);
   return (
     <>
       {loading && <Loading />}
@@ -489,6 +510,51 @@ export default function RecipeBuilder({
                 </TableCell>
                 <TableCell className="text-center" colSpan={3}>
                   {Math.round(blend.totalVolume * 1000) / 1000} {units.volume}
+                </TableCell>
+              </TableRow>
+              <TableRow className="bg-background">
+                <TableCell colSpan={5}>
+                  <div className="flex items-center justify-center gap-1">
+                    {t("scale.title")}
+                  </div>
+                </TableCell>
+              </TableRow>
+
+              <TableRow>
+                <TableCell id="totalVolume" className="text-center" colSpan={2}>
+                  {t("scale.current")}
+                </TableCell>
+                <TableCell className="text-center" colSpan={3}>
+                  <Input
+                    value={Math.round(blend.totalVolume * 1000) / 1000}
+                    disabled
+                  ></Input>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell id="totalVolume" className="text-center" colSpan={2}>
+                  {t("scale.target")}
+                </TableCell>
+                <TableCell className="text-center" colSpan={3}>
+                  <Input
+                    defaultValue={blend.totalVolume}
+                    ref={volumeRef}
+                  ></Input>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell id="totalVolume" className="text-center" colSpan={5}>
+                  <Button
+                    variant={"secondary"}
+                    type="button"
+                    onClick={() => {
+                      const newVolume =
+                        Number(volumeRef.current.value) ?? blend.totalVolume;
+                      scaleRecipe(blend.totalVolume, newVolume);
+                    }}
+                  >
+                    {t("scale.title")}
+                  </Button>
                 </TableCell>
               </TableRow>
             </TableFooter>

@@ -72,8 +72,33 @@ const extraLinks = [
     label: "additionalLinks.contact",
   },
   {
-    path: "https://yeasts.meadtools.com",
+    path: "/juice",
+    label: "additionalLinks.juice",
+  },
+  {
+    path: "/yeastTable",
     label: "yeasts",
+  },
+];
+
+const yeastDashboard = [
+  {
+    path: "/yeasts",
+    label: "desktop.allYeasts",
+  },
+  {
+    path: "/yeasts/create",
+    label: "desktop.addYeast",
+  },
+];
+const ingredientDashboard = [
+  {
+    path: "/ingredients",
+    label: "desktop.allIng",
+  },
+  {
+    path: "/ingredients/create",
+    label: "desktop.addIng",
   },
 ];
 
@@ -194,6 +219,14 @@ export default function Navbar({
                       </NavLink>
                     </li>
                   )}
+                  <li>
+                    <NavLink
+                      className="block p-3 space-y-1 leading-none no-underline transition-colors rounded-md outline-none select-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground "
+                      to={"/localRecipes"}
+                    >
+                      {t("desktop.local")}
+                    </NavLink>
+                  </li>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
@@ -216,7 +249,38 @@ export default function Navbar({
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to={"/yeasts/"}>Yeast Dashboard</Link>
+              <NavigationMenuTrigger>
+                <Link to={"/yeasts/"}>{t("desktop.data")}</Link>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid sm:gap-3 gap-2 sm:p-4 sm:min-w-[400px] min-w-[300px] lg:grid-cols-[1fr_1fr] text-start">
+                  <li className="col-span-full">{t("desktop.yeasts")}</li>
+                  {yeastDashboard.map((link) => {
+                    return (
+                      <ListItem
+                        key={link.path}
+                        title={t(link.label)}
+                        href={link.path}
+                      />
+                    );
+                  })}
+                </ul>
+                <ul className="grid sm:gap-3 gap-2 sm:p-4 sm:min-w-[400px] min-w-[300px] lg:grid-cols-[1fr_1fr] text-start">
+                  <li className="col-span-full">{t("desktop.ing")}</li>
+                  {ingredientDashboard.map((link) => {
+                    return (
+                      <ListItem
+                        key={link.path}
+                        title={t(link.label)}
+                        href={link.path}
+                      />
+                    );
+                  })}
+                </ul>
+                <div className="p-4">
+                  <Link to={"/reset/"}>{t("desktop.reset")}</Link>
+                </div>
+              </NavigationMenuContent>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>

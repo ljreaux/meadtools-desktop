@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -13,45 +15,36 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-
 import { useState } from "react";
-import Spinner from "@/components/Spinner";
 import { useNavigate } from "react-router-dom";
-import { updateYeast } from "@/db";
+import Spinner from "@/components/Spinner";
+import { updateIngredient } from "@/db";
 export const API_URL = "https://mead-tools-api.vercel.app/api";
 
 const FormSchema = z.object({
-  brand: z.string().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
   name: z.string().min(2, {
     message: "email must be at least 2 characters.",
   }),
-  nitrogen_requirement: z.string().min(2, {
+  sugar_content: z.string().min(2, {
     message: "email must be at least 2 characters.",
   }),
-  tolerance: z.number().min(2, {
+  water_content: z.string().min(2, {
     message: "email must be at least 2 characters.",
   }),
-  low_temp: z.number().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
-  high_temp: z.number().min(2, {
+  category: z.string().min(2, {
     message: "email must be at least 2 characters.",
   }),
 });
 
-export function EditYeastForm({
-  yeast,
+export function EditIngredientForm({
+  ingredient,
 }: {
-  yeast: {
+  ingredient: {
     id: number;
-    brand: string;
     name: string;
-    nitrogen_requirement: string;
-    tolerance: number;
-    low_temp: number;
-    high_temp: number;
+    sugar_content: string;
+    water_content: string;
+    category: string;
   };
 }) {
   const [loading, setLoading] = useState(false);
@@ -59,16 +52,16 @@ export function EditYeastForm({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      ...yeast,
+      ...ingredient,
     },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
-      await updateYeast(yeast.id.toString(), data);
-      toast({ description: "Yeast Edited Successfully." });
-      nav("/yeasts");
+      await updateIngredient(ingredient.id.toString(), data);
+      toast({ description: "Ingredient Edited Successfully." });
+      nav("/dashboard/ingredients");
     } catch (err) {
       console.error(err);
       toast({ description: "Failed to Edit", variant: "destructive" });
@@ -80,7 +73,7 @@ export function EditYeastForm({
   return (
     <Form {...form}>
       <div className="flex flex-col items-center py-20">
-        <h1 className="text-4xl">Edit {yeast?.name}</h1>
+        <h1 className="text-4xl">Edit Ingredient {ingredient.name}</h1>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-2/3 space-y-6"
@@ -92,7 +85,7 @@ export function EditYeastForm({
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="EC-Whatever..." {...field} />
+                  <Input placeholder="Honey..." {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -101,24 +94,10 @@ export function EditYeastForm({
           />
           <FormField
             control={form.control}
-            name="brand"
+            name="sugar_content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Yeast Brand</FormLabel>
-                <FormControl>
-                  <Input placeholder="0" {...field} />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="nitrogen_requirement"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nitrogen Requirement</FormLabel>
+                <FormLabel>Sugar Content</FormLabel>
                 <FormControl>
                   <Input placeholder="14" {...field} />
                 </FormControl>
@@ -129,10 +108,10 @@ export function EditYeastForm({
           />
           <FormField
             control={form.control}
-            name="tolerance"
+            name="water_content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tolerance</FormLabel>
+                <FormLabel>Water Content</FormLabel>
                 <FormControl>
                   <Input placeholder="15" {...field} />
                 </FormControl>
@@ -143,26 +122,12 @@ export function EditYeastForm({
           />
           <FormField
             control={form.control}
-            name="low_temp"
+            name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Low Temp</FormLabel>
+                <FormLabel>Category</FormLabel>
                 <FormControl>
-                  <Input placeholder="0" {...field} type="number" />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="high_temp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>High Temp</FormLabel>
-                <FormControl>
-                  <Input placeholder="0" {...field} type="number" />
+                  <Input {...field} />
                 </FormControl>
 
                 <FormMessage />

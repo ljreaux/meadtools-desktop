@@ -31,6 +31,14 @@ function Yeasts() {
           <TableCaption>A list of all yeasts.</TableCaption>
           <LoadingTable isLoading={loading}>
             <TableHeader>
+              <TableRow className="border-none">
+                <TableHead
+                  colSpan={8}
+                  className="text-3xl text-center text-bold"
+                >
+                  All Yeasts
+                </TableHead>
+              </TableRow>
               <TableRow>
                 <TableHead className="w-[100px]">I.D.</TableHead>
                 <TableHead>Name</TableHead>

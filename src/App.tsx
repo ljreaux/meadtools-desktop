@@ -12,13 +12,18 @@ import { IngredientListItem } from "./components/Home/Ingredient";
 import Login from "./components/Account/Login";
 import Account from "./components/Account/Account";
 import useLocalStorage from "./hooks/useLocalStorage";
-// import useAbv from "./hooks/useAbv";
 import Recipes from "./components/Recipes/Recipes";
 import LocalRecipe from "./components/Recipes/LocalRecipe";
 import { listen } from "@tauri-apps/api/event";
 import { seedDb } from "./db";
+
+import LocalRecipes from "./components/Account/LocalRecipes";
+import IngredientDashboard from "./components/Dashboard/ingredients/IngredientDashboard";
 import YeastDashboard from "./components/Dashboard/yeasts/YeastDashboard";
-import Pill from "./components/PillData/Pill";
+import Reset from "./components/Dashboard/Reset";
+import YeastTable from "./components/YeastDataTable/Table";
+import Juice from "./components/Juice/Juice";
+import ManualEntry from "./components/PillData/ManualEntry";
 
 export interface Additive {
   name: string;
@@ -67,7 +72,6 @@ function App() {
 
   useEffect(() => {
     seedDb();
-    navigate("/pill");
   }, []);
 
   const [filePath, setFilePath] = useState<string | null>(null);
@@ -201,6 +205,7 @@ function App() {
               />
             }
           />
+          <Route path="/juice" element={<Juice />} />
           <Route
             path="/"
             element={
@@ -214,7 +219,14 @@ function App() {
             }
           />
           <Route path="/yeasts/*" element={<YeastDashboard />} />
-          <Route path="/pill" element={<Pill />} />
+          <Route path="/ingredients/*" element={<IngredientDashboard />} />
+          <Route
+            path="/localRecipes"
+            element={<LocalRecipes setFilePath={setFilePath} />}
+          />
+          <Route path="/reset" element={<Reset />} />
+          <Route path="/yeastTable" element={<YeastTable />} />
+          <Route path="/manualEntry/:id" element={<ManualEntry />} />
         </Routes>
 
         <BottomBar />

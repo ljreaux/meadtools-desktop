@@ -5,6 +5,7 @@ import { FaFacebook } from "react-icons/fa";
 import { AiFillInstagram } from "react-icons/ai";
 import { MdEmail } from "react-icons/md";
 import { Link } from "react-router-dom";
+import KofiButton from "../KofiButton";
 
 const socials = [
   {
@@ -26,6 +27,10 @@ const socials = [
   {
     href: "https://www.instagram.com/meadtools/",
     logo: <AiFillInstagram />,
+  },
+  {
+    href: "https://ko-fi.com/meadtools",
+    logo: <KofiButton />,
   },
 ];
 
