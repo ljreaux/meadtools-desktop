@@ -8,9 +8,12 @@
   },
   "plugins": {
     "sql": {
-      "preload": [
-        "sqlite:meadtools.db"
-      ]
+      "preload": ["sqlite:meadtools.db"]
+    },
+    "deep-link": {
+      "desktop": {
+        "schemes": ["meadtools"]
+      }
     }
   },
   "bundle": {
@@ -50,7 +53,7 @@
   "productName": "MeadTools",
   "mainBinaryName": "MeadTools",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "meadtools",
   "app": {
     "windows": [
       {

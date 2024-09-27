@@ -226,7 +226,7 @@ export default function Home({
     secondaryNotes,
   ]);
 
-  const saveLocally = async (file: string) => {
+  const saveLocally = async () => {
     try {
       const file = await save({
         title: name,
@@ -264,6 +264,7 @@ export default function Home({
         description: `Error saving file: ${err}`,
         variant: "destructive",
       });
+      console.error(err);
     }
   };
 
@@ -362,7 +363,7 @@ export default function Home({
           </Link>
           OR
           <Input value={name} onChange={(e) => setName(e.target.value)}></Input>
-          <Button variant={"secondary"} onClick={() => saveLocally(name)}>
+          <Button variant={"secondary"} onClick={() => saveLocally()}>
             Save Recipe Locally
           </Button>
         </>

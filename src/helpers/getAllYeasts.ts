@@ -4,7 +4,7 @@ import { Yeast } from "@/components/Nutrients/MainInputs";
 
 export default async function getAllYeasts(): Promise<Yeast[]> {
   const yeasts = await fetchYeasts()
-  return (yeasts as Yeast[]).sort();
+  return ((yeasts as unknown) as Yeast[]).sort();
 }
 export async function deleteYeast(id: string) {
   return await deleteYeastById(id)

@@ -2,9 +2,7 @@
   "identifier": "migrated",
   "description": "permissions that were migrated from v1",
   "local": true,
-  "windows": [
-    "main"
-  ],
+  "windows": ["main"],
   "permissions": [
     "core:default",
     "fs:allow-read-file",
@@ -16,11 +14,11 @@
     "fs:allow-remove",
     "fs:allow-rename",
     "fs:allow-exists",
+    "fs:allow-write-text-file",
+    "fs:allow-read-text-file",
     {
       "identifier": "fs:scope",
-      "allow": [
-        "**"
-      ]
+      "allow": ["**"]
     },
     "core:window:allow-create",
     "core:window:allow-center",
@@ -85,9 +83,12 @@
     "core:app:allow-app-hide",
     "clipboard-manager:default",
     "fs:default",
+
     "http:default",
     "notification:default",
     "dialog:default",
-    "sql:default"
+    "sql:default",
+    "sql:allow-load",
+    "sql:allow-execute"
   ]
 }

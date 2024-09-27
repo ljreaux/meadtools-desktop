@@ -413,6 +413,8 @@ export default function LocalRecipe({
       goTo(1);
     } catch (error) {
       console.error("Error opening file dialog:", error);
+    } finally {
+      setLoading(false);
     }
   }
 

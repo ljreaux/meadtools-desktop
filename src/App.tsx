@@ -24,6 +24,7 @@ import Reset from "./components/Dashboard/Reset";
 import YeastTable from "./components/YeastDataTable/Table";
 import Juice from "./components/Juice/Juice";
 import ManualEntry from "./components/PillData/ManualEntry";
+import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 
 export interface Additive {
   name: string;
@@ -103,6 +104,16 @@ function App() {
       }
     });
 
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }, []);
+  useEffect(() => {
+    const unlisten = listen("deep-link://new-url", async () => {
+      await onOpenUrl((urls) => {
+        console.log("deep link:", urls);
+      });
+    });
     return () => {
       unlisten.then((f) => f());
     };
