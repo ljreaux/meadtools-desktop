@@ -3,8 +3,8 @@ import { FileData } from "./Pill";
 import EntryForm from "./EntryForm";
 import useChangeLogger from "@/hooks/useChangeLogger";
 import { Button } from "../ui/button";
-import { save } from "@tauri-apps/api/dialog";
-import { writeTextFile } from "@tauri-apps/api/fs";
+import { save } from "@tauri-apps/plugin-dialog";
+import { writeTextFile } from "@tauri-apps/plugin-fs";
 import {
   Select,
   SelectContent,
