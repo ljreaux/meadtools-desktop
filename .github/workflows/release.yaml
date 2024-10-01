@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CN_APPLICATION: MeadTools/MeadTools
+  CN_APPLICATION: meadtools/meadtools
 
 jobs:
   draft:
