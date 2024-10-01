@@ -13,26 +13,27 @@ import { buttonVariants } from "../ui/button";
 import { resetIngredients, resetYeasts } from "@/db";
 import { toast } from "../ui/use-toast";
 import Title from "../Title";
+import { useTranslation } from "react-i18next";
 
 function Reset() {
+  const { t } = useTranslation();
   return (
     <div className="w-11/12 h-full p-8 my-24 text-center bg-background rounded-2xl">
       <Title header="Reset Local Data" />
       <div className="grid items-center justify-center grid-cols-2 gap-4 text-center">
-        <p>Reset Yeasts</p>
-        <p>Reset Ingredients</p>
+        <p>{t("desktop.resetYeasts")}</p>
+        <p>{t("desktop.resetIngredients")}</p>
         <AlertDialog>
           <AlertDialogTrigger
             className={buttonVariants({ variant: "destructive" })}
           >
-            Reset
+            {t("reset")}
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t("desktop.confirm")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will reset your yeast data
-                back to default values.
+                {t("desktop.dataConfirm")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -41,11 +42,11 @@ function Reset() {
                 className={buttonVariants({ variant: "destructive" })}
                 onClick={() =>
                   resetYeasts().then(() =>
-                    toast({ description: "Your yeasts have been reset." })
+                    toast({ description: t("desktop.dataDialog") })
                   )
                 }
               >
-                Reset
+                {t("reset")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -54,14 +55,13 @@ function Reset() {
           <AlertDialogTrigger
             className={buttonVariants({ variant: "destructive" })}
           >
-            Reset
+            {t("reset")}
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t("desktop.confirm")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will reset your ingredient
-                data back to default values.
+                {t("desktop.dataConfirm")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -70,30 +70,29 @@ function Reset() {
                 className={buttonVariants({ variant: "destructive" })}
                 onClick={() =>
                   resetIngredients().then(() =>
-                    toast({ description: "Your ingredients have been reset." })
+                    toast({ description: t("desktop.dataDialog") })
                   )
                 }
               >
-                Reset
+                {t("reset")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <p className="col-span-2">Reset All</p>
+        <p className="col-span-2">{t("resetAll")}</p>
         <AlertDialog>
           <AlertDialogTrigger
             className={`${buttonVariants({
               variant: "destructive",
             })} col-span-2`}
           >
-            Reset
+            {t("reset")}
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t("desktop.confirm")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will reset your data back to
-                default values.
+                {t("desktop.dataConfirm")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -105,13 +104,12 @@ function Reset() {
                     .then(() => resetIngredients())
                     .then(() =>
                       toast({
-                        description:
-                          "Your yeasts and ingredients have been reset.",
+                        description: t("desktop.dataDialog"),
                       })
                     )
                 }
               >
-                Reset
+                {t("reset")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

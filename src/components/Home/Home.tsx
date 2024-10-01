@@ -34,9 +34,9 @@ import { Button } from "../ui/button";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { createRecipeLink } from "@/db";
-import { Input } from "../ui/input";
 import Pill from "../PillData/Pill";
 import { toast } from "../ui/use-toast";
+import { LocalRecipeForm } from "../Recipes/LocalRecipeForm";
 
 export default function Home({
   recipeData,
@@ -53,6 +53,7 @@ export default function Home({
   token: string | null;
   setBlendFG: Dispatch<SetStateAction<number[]>>;
 }) {
+  const [showLocalForm, setShowLocalForm] = useState(false);
   const [name, setName] = useState("");
   const [filePath, setFilePath] = useState("");
   const [recipeId, setRecipeId] = useState(0);
@@ -229,7 +230,6 @@ export default function Home({
   const saveLocally = async () => {
     try {
       const file = await save({
-        title: name,
         filters: [{ name, extensions: ["mead"] }],
       });
       if (!file) throw new Error("Couldn't save file");
@@ -250,12 +250,9 @@ export default function Home({
       alert("File saved successfully: " + file);
 
       setFilePath(file);
-      const fileName = file.substring(
-        file.lastIndexOf("/") + 1,
-        file.length - ".mead".length
-      );
+
       const { lastInsertId } = await createRecipeLink(name, file);
-      setName(fileName);
+
       setRecipeId(lastInsertId);
 
       next();
@@ -355,29 +352,63 @@ export default function Home({
     <>
       {!token ? (
         <>
-          <Link
-            to={"/login"}
-            className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
-          >
-            {t("recipeForm.login")}
-          </Link>
-          OR
-          <Input value={name} onChange={(e) => setName(e.target.value)}></Input>
-          <Button variant={"secondary"} onClick={() => saveLocally()}>
-            Save Recipe Locally
-          </Button>
+          {!showLocalForm && (
+            <>
+              <Link
+                to={"/login"}
+                className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
+              >
+                {t("recipeForm.login")}
+              </Link>
+              {t("accountPage.or")}
+            </>
+          )}
+          <>
+            {showLocalForm && (
+              <LocalRecipeForm
+                recipeName={name}
+                setRecipeName={setName}
+                handleSubmit={async () => await saveLocally()}
+              />
+            )}
+            <Button
+              variant={"secondary"}
+              onClick={() => setShowLocalForm(!showLocalForm)}
+            >
+              {showLocalForm ? t("meadtoolsOnline") : t("saveLocally")}
+            </Button>
+          </>
         </>
       ) : (
-        <SaveRecipeForm
-          recipeData={recipeData}
-          nutrientData={data}
-          nuteInfo={nuteInfo}
-          primaryNotes={primaryNotes}
-          secondaryNotes={secondaryNotes}
-          yanContribution={yanContribution}
-          yanFromSource={yanFromSource}
-          advanced={advanced}
-        />
+        <>
+          <>
+            {showLocalForm ? (
+              <LocalRecipeForm
+                recipeName={name}
+                setRecipeName={setName}
+                handleSubmit={async () => await saveLocally()}
+              />
+            ) : (
+              <SaveRecipeForm
+                recipeData={recipeData}
+                nutrientData={data}
+                nuteInfo={nuteInfo}
+                primaryNotes={primaryNotes}
+                secondaryNotes={secondaryNotes}
+                yanContribution={yanContribution}
+                yanFromSource={yanFromSource}
+                advanced={advanced}
+              />
+            )}
+          </>
+          OR
+          <Button
+            variant={"secondary"}
+            onClick={() => setShowLocalForm(!showLocalForm)}
+          >
+            {showLocalForm ? t("meadtoolsOnline") : t("saveLocally")}
+          </Button>
+        </>
       )}
     </>,
     <Pill name={name} file_path={filePath as string} id={recipeId} />,

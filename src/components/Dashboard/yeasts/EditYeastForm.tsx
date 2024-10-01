@@ -18,6 +18,7 @@ import { useState } from "react";
 import Spinner from "@/components/Spinner";
 import { useNavigate } from "react-router-dom";
 import { updateYeast } from "@/db";
+import { useTranslation } from "react-i18next";
 export const API_URL = "https://mead-tools-api.vercel.app/api";
 
 const FormSchema = z.object({
@@ -54,6 +55,7 @@ export function EditYeastForm({
     high_temp: number;
   };
 }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -67,11 +69,14 @@ export function EditYeastForm({
     setLoading(true);
     try {
       await updateYeast(yeast.id.toString(), data);
-      toast({ description: "Yeast Edited Successfully." });
+      toast({ description: t("desktop.yeastEdit") });
       nav("/yeasts");
     } catch (err) {
       console.error(err);
-      toast({ description: "Failed to Edit", variant: "destructive" });
+      toast({
+        description: t("desktop.yeastEditFail"),
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -80,7 +85,9 @@ export function EditYeastForm({
   return (
     <Form {...form}>
       <div className="flex flex-col items-center py-20">
-        <h1 className="text-4xl">Edit {yeast?.name}</h1>
+        <h1 className="text-4xl">
+          {t("edit")} {yeast?.name}
+        </h1>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-2/3 space-y-6"
@@ -90,7 +97,7 @@ export function EditYeastForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.name")}</FormLabel>
                 <FormControl>
                   <Input placeholder="EC-Whatever..." {...field} />
                 </FormControl>
@@ -104,7 +111,7 @@ export function EditYeastForm({
             name="brand"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Yeast Brand</FormLabel>
+                <FormLabel>{t("yeastBrand")}</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} />
                 </FormControl>
@@ -118,7 +125,7 @@ export function EditYeastForm({
             name="nitrogen_requirement"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nitrogen Requirement</FormLabel>
+                <FormLabel>{t("n2Requirement.label")}</FormLabel>
                 <FormControl>
                   <Input placeholder="14" {...field} />
                 </FormControl>
@@ -132,7 +139,7 @@ export function EditYeastForm({
             name="tolerance"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tolerance</FormLabel>
+                <FormLabel>{t("PDF.tolerance")}</FormLabel>
                 <FormControl>
                   <Input placeholder="15" {...field} />
                 </FormControl>
@@ -146,7 +153,7 @@ export function EditYeastForm({
             name="low_temp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Low Temp</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.low_temp")}</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -160,7 +167,7 @@ export function EditYeastForm({
             name="high_temp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>High Temp</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.high_temp")}</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -171,7 +178,7 @@ export function EditYeastForm({
           />
           <div className="flex gap-4">
             <Button type="button" variant="destructive" onClick={() => nav(-1)}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" variant={"secondary"}>
               {loading ? <Spinner variant="small" /> : "Submit"}

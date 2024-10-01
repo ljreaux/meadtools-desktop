@@ -75,7 +75,7 @@ export default function SaveRecipeForm(props: PropsType) {
         setRecipeName("");
       }}
     >
-      <Title header={t("recipeForm.title")} />
+      <Title header={t("meadtoolsOnline")} />
       <label
         htmlFor="recipeName"
         className="flex items-center justify-center w-full gap-4 text-center"

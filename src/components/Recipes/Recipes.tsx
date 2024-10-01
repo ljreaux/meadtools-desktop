@@ -36,6 +36,10 @@ import { MdPictureAsPdf } from "react-icons/md";
 import { useToast } from "../ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { Button } from "../ui/button";
+import { LocalRecipeForm } from "./LocalRecipeForm";
+import { save } from "@tauri-apps/plugin-dialog";
+import { writeTextFile } from "@tauri-apps/plugin-fs";
+import { createRecipeLink } from "@/db";
 
 export default function Recipes({
   ingredientsList,
@@ -48,6 +52,8 @@ export default function Recipes({
   token: string | null;
   userId: number | null;
 }) {
+  const [showLocalForm, setShowLocalForm] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const { i18n, t } = useTranslation();
   const language = i18n.language;
@@ -274,6 +280,7 @@ export default function Recipes({
     };
     getRecipe();
   }, []);
+
   const noUserError = t("alerts.notCurrentUser");
   useEffect(() => {
     notCurrentUser &&
@@ -290,6 +297,37 @@ export default function Recipes({
         ),
       });
   }, [recipeUser]);
+  const saveLocally = async () => {
+    try {
+      const file = await save({
+        filters: [{ name: "mead", extensions: ["mead"] }],
+      });
+      if (!file) throw new Error("Couldn't save file");
+      await writeTextFile(
+        file,
+        JSON.stringify({
+          name: recipeName,
+          primaryNotes,
+          secondaryNotes,
+          recipeData,
+          nutrientData: data,
+          nuteInfo,
+          yanContribution,
+          yanFromSource,
+          advanced,
+        })
+      );
+      alert("File saved successfully: " + file);
+
+      await createRecipeLink(recipeName, file);
+    } catch (err) {
+      toast({
+        description: `Error saving file: ${err}`,
+        variant: "destructive",
+      });
+      console.error(err);
+    }
+  };
   const { next, back, goTo, step, currentStepIndex, steps } = useMultiStepForm([
     <RecipeBuilder
       {...recipeData}
@@ -389,37 +427,67 @@ export default function Recipes({
       ) : (
         <>
           {updateForm ? (
-            <UpdateRecipeForm
-              name={recipeName}
-              updateName={setRecipeName}
-              recipeData={recipeData}
-              nutrientData={data}
-              nuteInfo={nuteInfo}
-              primaryNotes={primaryNotes}
-              secondaryNotes={secondaryNotes}
-              yanContribution={yanContribution}
-              yanFromSource={yanFromSource}
-              advanced={advanced}
-            />
+            <>
+              {showLocalForm ? (
+                <LocalRecipeForm
+                  recipeName={recipeName}
+                  setRecipeName={setRecipeName}
+                  handleSubmit={async () => await saveLocally()}
+                />
+              ) : (
+                <UpdateRecipeForm
+                  name={recipeName}
+                  updateName={setRecipeName}
+                  recipeData={recipeData}
+                  nutrientData={data}
+                  nuteInfo={nuteInfo}
+                  primaryNotes={primaryNotes}
+                  secondaryNotes={secondaryNotes}
+                  yanContribution={yanContribution}
+                  yanFromSource={yanFromSource}
+                  advanced={advanced}
+                />
+              )}
+            </>
           ) : (
-            <SaveRecipeForm
-              recipeData={recipeData}
-              nutrientData={data}
-              nuteInfo={nuteInfo}
-              primaryNotes={primaryNotes}
-              secondaryNotes={secondaryNotes}
-              yanContribution={yanContribution}
-              yanFromSource={yanFromSource}
-              advanced={advanced}
-            />
+            <>
+              {showLocalForm ? (
+                <LocalRecipeForm
+                  recipeName={recipeName}
+                  setRecipeName={setRecipeName}
+                  handleSubmit={async () => await saveLocally()}
+                />
+              ) : (
+                <SaveRecipeForm
+                  recipeData={recipeData}
+                  nutrientData={data}
+                  nuteInfo={nuteInfo}
+                  primaryNotes={primaryNotes}
+                  secondaryNotes={secondaryNotes}
+                  yanContribution={yanContribution}
+                  yanFromSource={yanFromSource}
+                  advanced={advanced}
+                />
+              )}
+            </>
           )}
           <p>{t("accountPage.or")}</p>
-          <Button
-            variant={"secondary"}
-            onClick={() => setUpdateForm((prev) => !prev)}
-          >
-            {updateForm ? t("changesForm.saveAs") : t("changesForm.login")}
-          </Button>
+          <div className="flex flex-col w-1/4">
+            {!showLocalForm && (
+              <Button
+                variant={"secondary"}
+                onClick={() => setUpdateForm((prev) => !prev)}
+              >
+                {updateForm ? t("changesForm.saveAs") : t("changesForm.login")}
+              </Button>
+            )}
+            <Button
+              variant={"secondary"}
+              onClick={() => setShowLocalForm(!showLocalForm)}
+            >
+              {showLocalForm ? t("meadtoolsOnline") : t("saveLocally")}
+            </Button>
+          </div>
         </>
       )}
     </>,

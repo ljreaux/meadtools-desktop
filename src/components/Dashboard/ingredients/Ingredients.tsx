@@ -10,8 +10,10 @@ import {
 import { useEffect, useState } from "react";
 import IngredientTable from "./IngredientTable";
 import { getAllIngredients } from "@/db";
+import { useTranslation } from "react-i18next";
 
 function AllIngredients() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [ingredients, setIngredients] = useState<any[]>([]);
   useEffect(() => {
@@ -27,16 +29,22 @@ function AllIngredients() {
     <section className="flex items-center justify-center">
       {
         <Table>
-          <TableCaption>A list of all ingredients.</TableCaption>
+          <TableCaption>{t("desktop.ingredientTableCaption")}</TableCaption>
           <LoadingTable isLoading={loading}>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px]">I.D.</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Sugar Content</TableHead>
-                <TableHead>Water Content</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Edit/Delete</TableHead>
+                <TableHead>{t("yeastTable.tableHeadings.name")}</TableHead>
+                <TableHead>
+                  {t("desktop.ingredientHeadings.sugarContent")}
+                </TableHead>
+                <TableHead>
+                  {t("desktop.ingredientHeadings.waterContent")}
+                </TableHead>
+                <TableHead>
+                  {t("desktop.ingredientHeadings.category")}
+                </TableHead>
+                <TableHead>{t("desktop.editOrDelete")}</TableHead>
               </TableRow>
             </TableHeader>
             <IngredientTable

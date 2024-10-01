@@ -17,6 +17,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
 import { createYeast } from "@/db";
+import { useTranslation } from "react-i18next";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
@@ -36,6 +37,7 @@ const FormSchema = z.object({
 });
 
 export function NewYeastForm() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -52,17 +54,18 @@ export function NewYeastForm() {
   });
 
   async function onSubmit(body: z.infer<typeof FormSchema>) {
+    const { t } = useTranslation();
     setLoading(true);
     try {
       const ingredient = await createYeast(body);
 
       if (!ingredient) throw new Error();
-      toast({ description: "Yeast successfully created." });
+      toast({ description: t("desktop.createdSuccessfully") });
       nav("/yeasts");
     } catch (err) {
       console.error(err);
       toast({
-        description: "Failed to create yeast.",
+        description: t("desktop.createUnsuccessful"),
         variant: "destructive",
       });
     } finally {
@@ -73,7 +76,7 @@ export function NewYeastForm() {
   return (
     <Form {...form}>
       <div className="flex flex-col items-center py-20">
-        <h1 className="text-4xl">Add New Yeast</h1>
+        <h1 className="text-4xl">{t("desktop.addYeast")}</h1>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-2/3 space-y-6"
@@ -83,7 +86,7 @@ export function NewYeastForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.name")}</FormLabel>
                 <FormControl>
                   <Input placeholder="EC-Whatever..." {...field} />
                 </FormControl>
@@ -97,7 +100,7 @@ export function NewYeastForm() {
             name="brand"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Yeast Brand</FormLabel>
+                <FormLabel>{t("yeastBrand")}</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} />
                 </FormControl>
@@ -111,7 +114,7 @@ export function NewYeastForm() {
             name="nitrogenRequirement"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nitrogen Requirement</FormLabel>
+                <FormLabel>{t("n2Requirement.label")}</FormLabel>
                 <FormControl>
                   <Input placeholder="14" {...field} />
                 </FormControl>
@@ -125,7 +128,7 @@ export function NewYeastForm() {
             name="tolerance"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tolerance</FormLabel>
+                <FormLabel>{t("PDF.tolerance")}</FormLabel>
                 <FormControl>
                   <Input placeholder="15" {...field} />
                 </FormControl>
@@ -139,7 +142,7 @@ export function NewYeastForm() {
             name="lowTemp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Low Temp</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.low_temp")}</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -153,7 +156,7 @@ export function NewYeastForm() {
             name="highTemp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>High Temp</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.high_temp")}</FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -164,7 +167,7 @@ export function NewYeastForm() {
           />
 
           <Button type="submit" variant={"secondary"}>
-            {loading ? <Spinner variant="small" /> : "Submit"}
+            {loading ? <Spinner variant="small" /> : t("SUBMIT")}
           </Button>
         </form>
       </div>

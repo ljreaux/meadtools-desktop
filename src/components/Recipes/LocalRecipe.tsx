@@ -36,6 +36,7 @@ import { Button } from "../ui/button";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import Pill from "../PillData/Pill";
+import { LocalRecipeForm } from "./LocalRecipeForm";
 
 export default function LocalRecipe({
   ingredientsList,
@@ -49,6 +50,7 @@ export default function LocalRecipe({
   userId: number | null;
   filePath: string | null;
 }) {
+  const [showLocalForm, setShowLocalForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const { i18n, t } = useTranslation();
   const language = i18n.language;
@@ -339,11 +341,23 @@ export default function LocalRecipe({
           >
             {t("recipeForm.login")}
           </Link>
-          OR
+          {t("accountPage.or")}
           {filePath && (
-            <Button variant={"secondary"} onClick={() => saveLocally(filePath)}>
-              Update Local Changes
-            </Button>
+            <>
+              {showLocalForm && (
+                <LocalRecipeForm
+                  recipeName={recipeName}
+                  setRecipeName={setRecipeName}
+                  handleSubmit={async () => await saveLocally(filePath)}
+                />
+              )}
+              <Button
+                variant={"secondary"}
+                onClick={() => setShowLocalForm(!showLocalForm)}
+              >
+                {t("updateLocalChanges")}
+              </Button>
+            </>
           )}
         </>
       ) : (
@@ -379,7 +393,7 @@ export default function LocalRecipe({
       const filePath =
         path ||
         (await open({
-          filters: [{ name: "json", extensions: ["mead", "json"] }],
+          filters: [{ name: "mead", extensions: ["mead"] }],
           multiple: false,
         }));
       if (!filePath) throw new Error();
@@ -409,7 +423,6 @@ export default function LocalRecipe({
       setNuteInfo(nuteInfo);
       setPrimaryNotes(cocatNotes(primaryNotes));
       setSecondaryNotes(cocatNotes(secondaryNotes));
-
       goTo(1);
     } catch (error) {
       console.error("Error opening file dialog:", error);
@@ -423,7 +436,7 @@ export default function LocalRecipe({
       await writeTextFile(
         file,
         JSON.stringify({
-          name,
+          name: recipeName,
           primaryNotes,
           secondaryNotes,
           recipeData,
@@ -437,11 +450,6 @@ export default function LocalRecipe({
       alert("File saved successfully: " + file);
 
       setFilePath(file);
-      const fileName = file.substring(
-        file.lastIndexOf("/") + 1,
-        file.length - ".mead".length
-      );
-      setRecipeName(fileName);
 
       next();
     } catch (err) {

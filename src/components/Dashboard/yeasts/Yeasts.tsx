@@ -11,8 +11,10 @@ import {
 import getAllYeasts from "@/helpers/getAllYeasts";
 import { useEffect, useState } from "react";
 import YeastTable from "./YeastTable";
+import { useTranslation } from "react-i18next";
 
 function Yeasts() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [yeasts, setYeasts] = useState<Yeast[]>([]);
   useEffect(() => {
@@ -28,7 +30,7 @@ function Yeasts() {
     <section className="flex items-center justify-center">
       {
         <Table>
-          <TableCaption>A list of all yeasts.</TableCaption>
+          <TableCaption>{t("desktop.yeastTableCaption")}</TableCaption>
           <LoadingTable isLoading={loading}>
             <TableHeader>
               <TableRow className="border-none">
@@ -36,18 +38,18 @@ function Yeasts() {
                   colSpan={8}
                   className="text-3xl text-center text-bold"
                 >
-                  All Yeasts
+                  {t("desktop.allYeasts")}
                 </TableHead>
               </TableRow>
               <TableRow>
                 <TableHead className="w-[100px]">I.D.</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Brand</TableHead>
-                <TableHead>Nitrogen Requirement</TableHead>
-                <TableHead>Tolerance</TableHead>
-                <TableHead>Low Temp</TableHead>
-                <TableHead>High Temp</TableHead>
-                <TableHead>Edit/Delete</TableHead>
+                <TableHead>{t("yeastTable.tableHeadings.name")}</TableHead>
+                <TableHead>{t("yeastBrand")}</TableHead>
+                <TableHead>{t("n2Requirement.label")}</TableHead>
+                <TableHead>{t("PDF.tolerance")}</TableHead>
+                <TableHead>{t("yeastTable.tableHeadings.low_temp")}</TableHead>
+                <TableHead>{t("yeastTable.tableHeadings.high_temp")}</TableHead>
+                <TableHead>{t("desktop.editOrDelete")}</TableHead>
               </TableRow>
             </TableHeader>
             <YeastTable yeasts={yeasts} setYeasts={setYeasts} />

@@ -6,6 +6,8 @@ import { login, register } from "../../helpers/Login";
 import Form from "./Form";
 import { useTranslation } from "react-i18next";
 import { API_URL } from "../../main";
+import axios from "axios";
+import { open } from "@tauri-apps/plugin-shell";
 export default function Login({
   setToken,
   theme: isDarkTheme,
@@ -40,7 +42,7 @@ export default function Login({
         {step}
         <button
           onClick={() => goTo(index)}
-          className="font-bold underline transition-all  text-foreground hover:text-sidebar"
+          className="font-bold underline transition-all text-foreground hover:text-sidebar"
         >
           {buttonMessage}
         </button>
@@ -50,11 +52,11 @@ export default function Login({
         <button
           onClick={() => {
             (async function auth() {
-              const response = await fetch(`${API_URL}/request`, {
-                method: "post",
+              const { data } = await axios.post(`${API_URL}/request`, {
+                desktop: true,
               });
-              const data = await response.json();
-              window.location.href = data.url;
+
+              open(data.url);
             })();
           }}
         >

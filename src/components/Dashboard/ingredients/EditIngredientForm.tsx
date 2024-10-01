@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
 import { updateIngredient } from "@/db";
+import { useTranslation } from "react-i18next";
 export const API_URL = "https://mead-tools-api.vercel.app/api";
 
 const FormSchema = z.object({
@@ -47,6 +48,7 @@ export function EditIngredientForm({
     category: string;
   };
 }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -83,7 +85,7 @@ export function EditIngredientForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.name")}</FormLabel>
                 <FormControl>
                   <Input placeholder="Honey..." {...field} />
                 </FormControl>
@@ -97,7 +99,9 @@ export function EditIngredientForm({
             name="sugar_content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sugar Content</FormLabel>
+                <FormLabel>
+                  {t("desktop.ingredientHeadings.sugarContent")}
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="14" {...field} />
                 </FormControl>
@@ -111,7 +115,9 @@ export function EditIngredientForm({
             name="water_content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Water Content</FormLabel>
+                <FormLabel>
+                  {t("desktop.ingredientHeadings.waterContent")}
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="15" {...field} />
                 </FormControl>
@@ -125,7 +131,9 @@ export function EditIngredientForm({
             name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Category</FormLabel>
+                <FormLabel>
+                  {t("desktop.ingredientHeadings.category")}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -136,7 +144,7 @@ export function EditIngredientForm({
           />
           <div className="flex gap-4">
             <Button type="button" variant="destructive" onClick={() => nav(-1)}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" variant={"secondary"}>
               {loading ? <Spinner variant="small" /> : "Submit"}

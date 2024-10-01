@@ -16,6 +16,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { deleteIngredient } from "@/db";
+import { useTranslation } from "react-i18next";
 
 export default function IngredientTable({
   ingredients,
@@ -85,6 +86,7 @@ export default function IngredientTable({
 }
 
 const DeleteButton = ({ handleClick }: { handleClick: () => void }) => {
+  const { t } = useTranslation();
   return (
     <AlertDialog>
       <AlertDialogTrigger
@@ -94,19 +96,18 @@ const DeleteButton = ({ handleClick }: { handleClick: () => void }) => {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t("desktop.confirm")}</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this
-            ingredient.
+            {t("desktop.ingredientWarning")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             className={buttonVariants({ variant: "destructive" })}
             onClick={handleClick}
           >
-            Delete
+            {t("desktop.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

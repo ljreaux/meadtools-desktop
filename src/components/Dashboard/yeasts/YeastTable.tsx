@@ -17,6 +17,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Yeast } from "@/components/Nutrients/MainInputs";
 import { useNavigate } from "react-router-dom";
 import { deleteYeast } from "@/helpers/getAllYeasts";
+import { useTranslation } from "react-i18next";
 
 export default function YeastTable({
   yeasts,
@@ -25,15 +26,16 @@ export default function YeastTable({
   yeasts: Yeast[];
   setYeasts: (yeast: Yeast[]) => void;
 }) {
+  const { t } = useTranslation();
   const deleteYeastListItem = (i: number, id: number) => {
     deleteYeast(id.toString())
       .then((data) => {
         if (data.rowsAffected === 0) throw new Error(`Could not delete`);
-        else toast({ description: "Yeast deleted successfully." });
+        else toast({ description: t("desktop.deleteSuccessful") });
       })
 
       .then(() => setYeasts(yeasts.filter((_, index) => index !== i)))
-      .catch(() => toast({ description: "Could Not Delete Yeast" }));
+      .catch(() => toast({ description: t("desktop.deleteUnsuccessful") }));
   };
 
   const nav = useNavigate();
@@ -81,19 +83,19 @@ export default function YeastTable({
 }
 
 const DeleteButton = ({ handleClick }: { handleClick: () => void }) => {
+  const { t } = useTranslation();
   return (
     <AlertDialog>
       <AlertDialogTrigger
         className={buttonVariants({ variant: "destructive" })}
       >
-        Delete
+        {t("desktop.delete")}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t("desktop.confirm")}</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this
-            yeast.
+            {t("desktop.yeastDelete")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -102,7 +104,7 @@ const DeleteButton = ({ handleClick }: { handleClick: () => void }) => {
             className={buttonVariants({ variant: "destructive" })}
             onClick={handleClick}
           >
-            Delete
+            {t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

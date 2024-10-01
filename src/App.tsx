@@ -24,7 +24,7 @@ import Reset from "./components/Dashboard/Reset";
 import YeastTable from "./components/YeastDataTable/Table";
 import Juice from "./components/Juice/Juice";
 import ManualEntry from "./components/PillData/ManualEntry";
-import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
+// import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 
 export interface Additive {
   name: string;
@@ -70,6 +70,7 @@ export type Opened = {
 
 function App() {
   const navigate = useNavigate();
+  const [oathRedirect, setOathRedirect] = useState<null | string>(null);
 
   useEffect(() => {
     seedDb();
@@ -109,15 +110,27 @@ function App() {
     };
   }, []);
   useEffect(() => {
-    const unlisten = listen("deep-link://new-url", async () => {
-      await onOpenUrl((urls) => {
-        console.log("deep link:", urls);
-      });
-    });
+    const unlisten = listen(
+      "deep-link://new-url",
+      async (data: { payload: string[] }) => {
+        const { payload } = data;
+        if (payload) {
+          const url = (payload[0] as string).slice("meadtools://".length);
+          setOathRedirect(url);
+        }
+      }
+    );
     return () => {
       unlisten.then((f) => f());
     };
   }, []);
+
+  useEffect(() => {
+    if (oathRedirect) {
+      navigate(`/login${oathRedirect}`);
+    }
+  }, [oathRedirect]);
+
   const [isMetric, setIsMetric] = useLocalStorage("metric", false);
   const [theme, setTheme] = useLocalStorage("theme", true);
 

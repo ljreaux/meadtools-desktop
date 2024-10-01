@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
 import { createIngredient } from "@/db";
+import { useTranslation } from "react-i18next";
 
 export const API_URL = "https://mead-tools-api.vercel.app/api";
 
@@ -34,6 +35,7 @@ const FormSchema = z.object({
 });
 
 export function NewIngredientForm() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -69,7 +71,7 @@ export function NewIngredientForm() {
   return (
     <Form {...form}>
       <div className="flex flex-col items-center py-20">
-        <h1 className="text-4xl">Add New Ingredient</h1>
+        <h1 className="text-4xl">{t("desktop.addIng")}</h1>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-2/3 space-y-6"
@@ -79,7 +81,7 @@ export function NewIngredientForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("yeastTable.tableHeadings.name")}</FormLabel>
                 <FormControl>
                   <Input placeholder="Honey..." {...field} />
                 </FormControl>
@@ -93,7 +95,10 @@ export function NewIngredientForm() {
             name="sugarContent"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sugar Content</FormLabel>
+                <FormLabel>
+                  {" "}
+                  {t("desktop.ingredientHeadings.sugarContent")}
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -107,7 +112,10 @@ export function NewIngredientForm() {
             name="waterContent"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Water Content</FormLabel>
+                <FormLabel>
+                  {" "}
+                  {t("desktop.ingredientHeadings.waterContent")}
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="0" {...field} type="number" />
                 </FormControl>
@@ -121,7 +129,10 @@ export function NewIngredientForm() {
             name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Category</FormLabel>
+                <FormLabel>
+                  {" "}
+                  {t("desktop.ingredientHeadings.category")}
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="fruit" {...field} />
                 </FormControl>
@@ -131,7 +142,7 @@ export function NewIngredientForm() {
             )}
           />
           <Button type="submit" variant={"secondary"}>
-            {loading ? <Spinner variant="small" /> : "Submit"}
+            {loading ? <Spinner variant="small" /> : t("SUBMIT")}
           </Button>
         </form>
       </div>

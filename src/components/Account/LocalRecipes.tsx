@@ -55,6 +55,7 @@ function LocalRecipes({
     pdf?: boolean,
     hydro?: boolean
   ) => {
+    const { t } = useTranslation();
     const fileExists = await exists(file_path);
     if (fileExists) {
       const hydroPath = hydrometer_data_path
@@ -70,8 +71,8 @@ function LocalRecipes({
       else navigate("/");
     } else {
       toast({
-        title: "Something went wrong.",
-        description: "Your file cannot be found.",
+        title: t("desktop.error"),
+        description: t("desktop.notFound"),
         action: (
           <ToastAction
             onClick={() =>
@@ -79,7 +80,7 @@ function LocalRecipes({
             }
             altText="Relink file."
           >
-            Relink file.
+            {t("desktop.relink")}
           </ToastAction>
         ),
       });
@@ -135,17 +136,18 @@ function LocalRecipes({
 
     file_path: string;
   }) => {
+    const { t } = useTranslation();
     const fileExists = await exists(file_path);
     if (fileExists) return;
     toast({
-      title: "Something went wrong.",
-      description: "Your file cannot be found.",
+      title: t("desktop.notFound"),
+      description: t("desktop.notFound"),
       action: (
         <ToastAction
           onClick={() => addHydrometerData({ id, file_path })}
           altText="Relink file."
         >
-          Relink file.
+          {t("desktop.relink")}
         </ToastAction>
       ),
     });
@@ -159,6 +161,12 @@ function LocalRecipes({
       <div
         className={`flex flex-wrap justify-center items-center gap-4 text-center mt-4 `}
       >
+        {!recipes.length && (
+          <div>
+            <p>{t("desktop.noRecipes")}</p>
+          </div>
+        )}
+
         {recipes.map((recipe: Recipe) => {
           return (
             <div
@@ -189,7 +197,7 @@ function LocalRecipes({
                     }}
                     variant={"secondary"}
                   >
-                    Open Hydrometer Data
+                    {t("desktop.openHydro")}
                   </Button>
                 ) : (
                   <>
@@ -197,20 +205,20 @@ function LocalRecipes({
                       <PopoverTrigger
                         className={buttonVariants({ variant: "secondary" })}
                       >
-                        Add Hydrometer Data
+                        {t("desktop.addHydro")}
                       </PopoverTrigger>
                       <PopoverContent className="grid gap-4 ">
                         <Link
                           to={`/manualEntry/${recipe.id}`}
                           className={buttonVariants({ variant: "secondary" })}
                         >
-                          Manual Entry
+                          {t("desktop.manual")}
                         </Link>
                         <Button
                           variant={"secondary"}
                           onClick={() => addHydrometerData(recipe)}
                         >
-                          Upload Hydrometer Data
+                          {t("desktop.manual")}
                         </Button>
                       </PopoverContent>
                     </Popover>
@@ -225,17 +233,16 @@ function LocalRecipes({
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>{t("desktop.confirm")}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action will not remove the files from your computer,
-                      it simply removes the path from your local database.
+                      {t("desktop.dialogDescription")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel
                       className={buttonVariants({ variant: "default" })}
                     >
-                      Cancel
+                      {t("cancel")}
                     </AlertDialogCancel>
                     <AlertDialogAction
                       className={buttonVariants({ variant: "destructive" })}
@@ -247,7 +254,7 @@ function LocalRecipes({
                         )
                       }
                     >
-                      Continue
+                      {t("continue")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

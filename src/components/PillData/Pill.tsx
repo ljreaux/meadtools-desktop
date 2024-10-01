@@ -15,7 +15,8 @@ import convertToJson from "read-excel-file/map";
 import { parse } from "papaparse";
 import { updateRecipe } from "@/db";
 import { Link } from "react-router-dom";
-import { buttonVariants } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 type csvReturnType = { data: any[]; errors: any[]; meta: {} };
 type JSONType = { data: any[]; errors: any[] };
@@ -200,9 +201,18 @@ function Pill({
     return parsed;
   };
 
+  const extensions =
+    fileType === "tilt"
+      ? ["xlsx", "csv"]
+      : fileType === "iSpindel"
+      ? ["csv"]
+      : fileType === "pill"
+      ? ["xlsx"]
+      : ["hydro"];
+
   const findFilePath = async () => {
     const file = await open({
-      filters: [{ name: "Pill", extensions: ["xlsx", "csv", "hydro"] }],
+      filters: [{ name: "Pill", extensions }],
       multiple: false,
     });
 
@@ -305,7 +315,7 @@ function Pill({
   }, [filePath, fileType]);
 
   return (
-    <div className="w-11/12">
+    <div className="w-11/12 px-12 py-24">
       <Select
         value={fileType}
         onValueChange={(val: FileTypes) => setFileType(val)}
@@ -334,27 +344,36 @@ function Pill({
             <SelectItem value="C">°C</SelectItem>
           </SelectContent>
         </Select>
-      )}
-      <button onClick={findFilePath}>Open {fileType} file</button>
-
-      {data ? (
-        <HydrometerData
-          chartData={data}
-          name={name || ""}
-          tempUnits={tempUnits}
-        />
-      ) : (
-        <>
-          {" "}
-          OR
-          <Link
-            to={`/manualEntry/${id}`}
-            className={buttonVariants({ variant: "secondary" })}
-          >
-            Enter Manually
-          </Link>
-        </>
-      )}
+      )}{" "}
+      <div
+        className={cn(
+          "flex items-center justify-center gap-4 my-8",
+          data && "flex-col"
+        )}
+      >
+        {data ? (
+          <div className="w-full">
+            <HydrometerData
+              chartData={data}
+              name={name || ""}
+              tempUnits={tempUnits}
+            />
+          </div>
+        ) : (
+          <>
+            <Button onClick={findFilePath} variant={"secondary"}>
+              Open {fileType} file
+            </Button>{" "}
+            OR
+            <Link
+              to={`/manualEntry/${id}`}
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              Enter Manually
+            </Link>
+          </>
+        )}
+      </div>
     </div>
   );
 }
