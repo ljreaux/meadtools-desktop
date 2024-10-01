@@ -1,23 +1,30 @@
-name: Tauri v2 Release Process
+name: Publish Release
+
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      app-slug:
+        description: "The slug of your app in your CrabNebula Cloud org"
+        required: true
+        default: "MeadTools"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CN_APPLICATION: MeadTools/MeadTools
+
 jobs:
   draft:
-    env:
-      UBUNTU: "ubuntu-20.04"
-      MACOS: "macos-latest"
-      WINDOWS: "windows-latest"
-      CN_APPLICATION: "MeadTools/MeadTools"
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
+
       - name: create draft release
         uses: crabnebula-dev/cloud-release@v0
         with:
@@ -30,18 +37,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ${{ env.UBUNTU }}
-          - ${{ env.MACOS }}
-          - ${{ env.WINDOWS }}
+        os: [ubuntu-22.04, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
       - name: Install stable toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
@@ -49,30 +51,15 @@ jobs:
           cache: true
 
       - name: install Linux dependencies
-        if: matrix.os == '${{ env.UBUNTU }}'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y webkit2gtk-4.1
 
-      - name: build Tauri app for Windows, Linux
-        if: matrix.os != '${{ env.MACOS }}'
+      - name: build tauri app
         run: |
           npm ci
           npm run tauri build
-        env:
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-
-      - name: Install x86_64-apple-darwin for mac and build Tauri binaries
-        if: matrix.os == 'macos-latest'
-        run: |
-          rustup target add x86_64-apple-darwin
-          npm ci
-          npm run tauri build -- --target x86_64-apple-darwin
-          npm run tauri build -- --target aarch64-apple-darwin
-        env:
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
       - name: upload assets
         uses: crabnebula-dev/cloud-release@v0
@@ -84,7 +71,7 @@ jobs:
   publish:
     needs: build
 
-    runs-on: ${{ env.UBUNTU }}
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
