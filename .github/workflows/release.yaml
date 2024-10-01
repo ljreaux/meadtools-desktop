@@ -13,27 +13,28 @@ env:
   MACOS: "macos-latest"
   WINDOWS: "windows-latest"
   CN_APPLICATION: "MeadTools/MeadTools"
+jobs:
+  draft:
+    steps:
+      - uses: actions/checkout@v4
+      - name: create draft release
+        uses: crabnebula-dev/cloud-release@v0
+        with:
+          command: release draft ${{ env.CN_APPLICATION }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
 
-steps:
-  - uses: actions/checkout@v4
-  - name: create draft release
-    uses: crabnebula-dev/cloud-release@v0
-    with:
-      command: release draft ${{ env.CN_APPLICATION }} --framework tauri
-      api-key: ${{ secrets.CN_API_KEY }}
+  build:
+    needs: draft
 
-build:
-  needs: draft
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ${{ env.UBUNTU }}
+          - ${{ env.MACOS }}
+          - ${{ env.WINDOWS }}
 
-  strategy:
-    fail-fast: false
-    matrix:
-      os:
-        - ${{ env.UBUNTU }}
-        - ${{ env.MACOS }}
-        - ${{ env.WINDOWS }}
-
-  runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
   steps:
     - uses: actions/checkout@v4
@@ -79,16 +80,16 @@ build:
         api-key: ${{ secrets.CN_API_KEY }}
         path: ./src-tauri
 
-publish:
-  needs: build
+  publish:
+    needs: build
 
-  runs-on: ${{ env.UBUNTU }}
+    runs-on: ${{ env.UBUNTU }}
 
-  steps:
-    - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: publish release
-      uses: crabnebula-dev/cloud-release@v0
-      with:
-        command: release publish ${{ env.CN_APPLICATION }} --framework tauri
-        api-key: ${{ secrets.CN_API_KEY }}
+      - name: publish release
+        uses: crabnebula-dev/cloud-release@v0
+        with:
+          command: release publish ${{ env.CN_APPLICATION }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
