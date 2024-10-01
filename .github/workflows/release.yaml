@@ -8,21 +8,22 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  UBUNTU: "ubuntu-20.04"
-  MACOS: "macos-latest"
-  WINDOWS: "windows-latest"
-  CN_APPLICATION: "MeadTools/MeadTools"
-
-steps:
-  - uses: actions/checkout@v4
-  - name: create draft release
-    uses: crabnebula-dev/cloud-release@v0
-    with:
-      command: release draft ${{ env.CN_APPLICATION }} --framework tauri
-      api-key: ${{ secrets.CN_API_KEY }}
-
 jobs:
+  draft:
+    env:
+      UBUNTU: "ubuntu-20.04"
+      MACOS: "macos-latest"
+      WINDOWS: "windows-latest"
+      CN_APPLICATION: "MeadTools/MeadTools"
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: create draft release
+        uses: crabnebula-dev/cloud-release@v0
+        with:
+          command: release draft ${{ env.CN_APPLICATION }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
+
   build:
     needs: draft
 
