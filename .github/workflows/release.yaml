@@ -9,7 +9,7 @@ on:
       app-slug:
         description: "The slug of your app in your CrabNebula Cloud org"
         required: true
-        default: "MeadTools"
+        default: "meadtools"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
