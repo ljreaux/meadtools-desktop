@@ -4,7 +4,7 @@ description = "An All in one Mead, Wine, and cider making calculator"
 authors = ["ljreaux"]
 license = "MIT"
 repository = ""
-default-run = "app"
+default-run = "MeadTools"
 edition = "2021"
 rust-version = "1.60"
 
