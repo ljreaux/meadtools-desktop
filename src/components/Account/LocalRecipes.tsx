@@ -55,7 +55,6 @@ function LocalRecipes({
     pdf?: boolean,
     hydro?: boolean
   ) => {
-    const { t } = useTranslation();
     const fileExists = await exists(file_path);
     if (fileExists) {
       const hydroPath = hydrometer_data_path
@@ -136,7 +135,6 @@ function LocalRecipes({
 
     file_path: string;
   }) => {
-    const { t } = useTranslation();
     const fileExists = await exists(file_path);
     if (fileExists) return;
     toast({
@@ -152,12 +150,10 @@ function LocalRecipes({
       ),
     });
   };
-  useEffect(() => {
-    console.table(recipes);
-  }, [recipes]);
+
   return (
     <div className="relative flex flex-col items-center w-11/12 p-8 my-24 sm:w-9/12 rounded-xl bg-background">
-      <Title header="Local Recipes" />
+      <Title header={t("localRecipes")} />
       <div
         className={`flex flex-wrap justify-center items-center gap-4 text-center mt-4 `}
       >

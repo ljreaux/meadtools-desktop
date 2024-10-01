@@ -295,8 +295,6 @@ function Pill({
             schema
           ) as unknown as JSONType;
 
-          console.log(file);
-
           if (file && !file.errors.length) {
             const parsedData = handleFile(file);
             setData(parsedData);

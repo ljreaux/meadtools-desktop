@@ -12,7 +12,6 @@ function EditIngredient() {
     if (id)
       getIngredient(id).then((ing) => {
         setIngredient(ing);
-        console.log(ing);
       });
   }, [id]);
 

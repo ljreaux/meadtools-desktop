@@ -87,7 +87,7 @@ function ManualEntry() {
     (async () => {
       if (id) {
         const [recipe] = await getRecipeById(id);
-        console.log(recipe);
+
         setName(recipe.name);
       }
     })();

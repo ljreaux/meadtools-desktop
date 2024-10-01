@@ -53,7 +53,7 @@ export function NewIngredientForm() {
     setLoading(true);
     try {
       const ingredient = await createIngredient(body);
-      console.log(ingredient);
+
       if (!ingredient) throw new Error();
       toast({ description: "Ingredient successfully created." });
       nav("/ingredients/");
