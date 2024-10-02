@@ -44,11 +44,10 @@ export function NewYeastForm() {
   });
 
   async function onSubmit(body: z.infer<typeof FormSchema>) {
-    console.log("submitted");
     setLoading(true);
     try {
       const ingredient = await createYeast(body);
-      console.log(ingredient);
+
       if (!ingredient) throw new Error();
       toast({ description: t("desktop.createdSuccessfully") });
       nav("/yeasts");

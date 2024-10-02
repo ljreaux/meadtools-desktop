@@ -75,6 +75,7 @@
     "os:allow-exe-extension",
     "os:allow-locale",
     "os:allow-hostname",
+    "process:default",
     "process:allow-restart",
     "process:allow-exit",
     "clipboard-manager:allow-read-text",

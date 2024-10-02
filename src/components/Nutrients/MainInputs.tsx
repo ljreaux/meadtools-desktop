@@ -110,7 +110,7 @@ export default function MainInputs({
 
     getYeasts();
   }, []);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const keyArr = Object.keys(maxGpl);
 
   const handleChange = (e: FormEvent<EventTarget>) => {
@@ -273,15 +273,19 @@ export default function MainInputs({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {yeasts[selected.yeastBrand].map((yeast) => (
-                        <SelectItem key={yeast.name} value={yeast.name}>
-                          {t(
-                            `${lodash.camelCase(
-                              selected.yeastBrand
-                            )}.yeasts.${lodash.camelCase(yeast.name)}`
-                          )}
-                        </SelectItem>
-                      ))}
+                      {yeasts[selected.yeastBrand].map((yeast) => {
+                        const brand = lodash.camelCase(selected.yeastBrand);
+                        const camelCase = lodash.camelCase(yeast.name);
+                        const fullKey = `${brand}.yeasts.${camelCase}`;
+                        const exists = i18n.exists(fullKey);
+
+                        const display = exists ? fullKey : yeast.name;
+                        return (
+                          <SelectItem key={yeast.name} value={yeast.name}>
+                            {t(display)}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </TableCell>

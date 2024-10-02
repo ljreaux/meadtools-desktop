@@ -77,7 +77,9 @@ function IngredientOptions({
   return (
     <>
       {ingredients.map((ingredient) => {
-        const ingredientDisplay = lodash.camelCase(ingredient.name);
+        const camelCase = lodash.camelCase(ingredient.name);
+        const nameExists = i18n.exists(camelCase);
+        const ingredientDisplay = nameExists ? camelCase : ingredient.name;
         return (
           <SelectItem
             key={ingredientDisplay}
