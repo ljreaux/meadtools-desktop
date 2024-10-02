@@ -1,6 +1,7 @@
 [package]
 name = "MeadTools"
 description = "An All in one Mead, Wine, and cider making calculator"
+version = "0.0.1"
 authors = ["ljreaux"]
 license = "MIT"
 repository = ""
