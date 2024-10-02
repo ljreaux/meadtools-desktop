@@ -40,6 +40,7 @@ import { LocalRecipeForm } from "./LocalRecipeForm";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { createRecipeLink } from "@/db";
+import { usePathContext } from "@/hooks/usePathContext";
 
 export default function Recipes({
   ingredientsList,
@@ -297,9 +298,11 @@ export default function Recipes({
         ),
       });
   }, [recipeUser]);
+  const { defaultPath } = usePathContext();
   const saveLocally = async () => {
     try {
       const file = await save({
+        defaultPath: `${defaultPath}${recipeName}.mead`,
         filters: [{ name: "mead", extensions: ["mead"] }],
       });
       if (!file) throw new Error("Couldn't save file");
