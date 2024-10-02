@@ -19,7 +19,7 @@
       "endpoints": [
         "https://cdn.crabnebula.app/update/meadtools/meadtools/{{target}}-{{arch}}/{{current_version}}"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY3ODJENTU5NDE3QTg4MDEKUldRQmlIcEJXZFdDWitmM2gyc0tkRUxOZDJua29ObndkaExhK01YS0lybVVJdjBlbCtaL2ozN2sK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk2RjIwQ0E5NzkwRDU4NUYKUldSZldBMTVxUXp5bGpreFdOQnRsdi9ySks2R29GcHkxcWNsWmFodEo5VGdhSDRyS0MrZk9iVkEK",
       "dangerousInsecureTransportProtocol": true
     }
   },
