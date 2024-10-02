@@ -27,8 +27,14 @@ const FormSchema = z.object({
   name: z.string().min(2, {
     message: "Ingredient name must be at least 2 characters.",
   }),
-  sugarContent: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
-  waterContent: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  sugarContent: z.preprocess(
+    (a) => Number(z.string().parse(a)),
+    z.number().min(0)
+  ),
+  waterContent: z.preprocess(
+    (a) => Number(z.string().parse(a)),
+    z.number().min(0)
+  ),
   category: z.string().min(2, {
     message: "Ingredient category must be at least 2 characters.",
   }),
@@ -41,18 +47,13 @@ export function NewIngredientForm() {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      name: "",
-      sugarContent: 0,
-      waterContent: 0,
-      category: "",
-    },
   });
 
   async function onSubmit(body: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
-      const ingredient = await createIngredient(body);
+      const dataCopy = { ...body, category: body.category.toLowerCase() };
+      const ingredient = await createIngredient(dataCopy);
 
       if (!ingredient) throw new Error();
       toast({ description: "Ingredient successfully created." });

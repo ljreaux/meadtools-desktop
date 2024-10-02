@@ -24,16 +24,12 @@ export const API_URL = "https://mead-tools-api.vercel.app/api";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
-    message: "email must be at least 2 characters.",
+    message: "name must be at least 2 characters.",
   }),
-  sugar_content: z.string().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
-  water_content: z.string().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
+  sugar_content: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  water_content: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
   category: z.string().min(2, {
-    message: "email must be at least 2 characters.",
+    message: "category must be at least 2 characters.",
   }),
 });
 
@@ -43,8 +39,8 @@ export function EditIngredientForm({
   ingredient: {
     id: number;
     name: string;
-    sugar_content: string;
-    water_content: string;
+    sugar_content: number;
+    water_content: number;
     category: string;
   };
 }) {
@@ -61,7 +57,8 @@ export function EditIngredientForm({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
-      await updateIngredient(ingredient.id.toString(), data);
+      const dataCopy = { ...data, category: data.category.toLowerCase() };
+      await updateIngredient(ingredient.id.toString(), dataCopy);
       toast({ description: "Ingredient Edited Successfully." });
       nav("/dashboard/ingredients");
     } catch (err) {

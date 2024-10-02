@@ -23,23 +23,17 @@ export const API_URL = "https://mead-tools-api.vercel.app/api";
 
 const FormSchema = z.object({
   brand: z.string().min(2, {
-    message: "email must be at least 2 characters.",
+    message: "brand must be at least 2 characters.",
   }),
   name: z.string().min(2, {
-    message: "email must be at least 2 characters.",
+    message: "name must be at least 2 characters.",
   }),
   nitrogen_requirement: z.string().min(2, {
-    message: "email must be at least 2 characters.",
+    message: "N2 requirement must be at least 2 characters.",
   }),
-  tolerance: z.number().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
-  low_temp: z.number().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
-  high_temp: z.number().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
+  tolerance: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  low_temp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  high_temp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
 });
 
 export function EditYeastForm({

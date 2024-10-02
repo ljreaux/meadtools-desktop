@@ -37,6 +37,7 @@ import { createRecipeLink } from "@/db";
 import Pill from "../PillData/Pill";
 import { toast } from "../ui/use-toast";
 import { LocalRecipeForm } from "../Recipes/LocalRecipeForm";
+import { usePathContext } from "@/hooks/usePathContext";
 
 export default function Home({
   recipeData,
@@ -227,9 +228,12 @@ export default function Home({
     secondaryNotes,
   ]);
 
+  const { defaultPath } = usePathContext();
+
   const saveLocally = async () => {
     try {
       const file = await save({
+        defaultPath: `${defaultPath}${name}.mead`,
         filters: [{ name, extensions: ["mead"] }],
       });
       if (!file) throw new Error("Couldn't save file");

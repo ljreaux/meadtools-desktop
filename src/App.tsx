@@ -24,6 +24,7 @@ import Reset from "./components/Dashboard/Reset";
 import YeastTable from "./components/YeastDataTable/Table";
 import Juice from "./components/Juice/Juice";
 import ManualEntry from "./components/PillData/ManualEntry";
+import { checkForAppUpdates } from "./updater";
 // import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 
 export interface Additive {
@@ -176,6 +177,10 @@ function App() {
       },
     }));
   }, [isMetric]);
+
+  useEffect(() => {
+    (async () => await checkForAppUpdates())();
+  }, []);
 
   return (
     <>

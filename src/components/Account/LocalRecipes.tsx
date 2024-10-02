@@ -20,6 +20,7 @@ import {
 import { toast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { usePathContext } from "@/hooks/usePathContext";
 
 type Recipe = {
   name: string;
@@ -150,9 +151,17 @@ function LocalRecipes({
       ),
     });
   };
-
+  const { setDefaultPath } = usePathContext();
+  const definePath = async () => {
+    let path = (await open({ directory: true })) ?? "/";
+    if (!path.endsWith("/")) path += "/";
+    setDefaultPath(path);
+  };
   return (
     <div className="relative flex flex-col items-center w-11/12 p-8 my-24 sm:w-9/12 rounded-xl bg-background">
+      <Button className="ml-auto" variant={"secondary"} onClick={definePath}>
+        Set Default Path
+      </Button>
       <Title header={t("localRecipes")} />
       <div
         className={`flex flex-wrap justify-center items-center gap-4 text-center mt-4 `}

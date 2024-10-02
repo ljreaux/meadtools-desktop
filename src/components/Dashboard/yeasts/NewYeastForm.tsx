@@ -20,18 +20,16 @@ import { createYeast } from "@/db";
 import { useTranslation } from "react-i18next";
 
 const FormSchema = z.object({
+  brand: z.string().min(2, {
+    message: "brand must be at least 2 characters.",
+  }),
   name: z.string().min(2, {
-    message: "Yeast name must be at least 2 characters.",
+    message: "name must be at least 2 characters.",
   }),
   nitrogenRequirement: z.string().min(2, {
-    message: "Yeast nitrogen requirement must be at least 2 characters.",
+    message: "N2 requirement must be at least 2 characters.",
   }),
-  tolerance: z.string().min(2, {
-    message: "Yeast nitrogen requirement must be at least 2 characters.",
-  }),
-  brand: z.string().min(2, {
-    message: "Yeast brand must be at least 2 characters.",
-  }),
+  tolerance: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
   lowTemp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
   highTemp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
 });
@@ -43,18 +41,9 @@ export function NewYeastForm() {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      name: "",
-      brand: "Lalvin",
-      nitrogenRequirement: "Low",
-      tolerance: "",
-      lowTemp: 0,
-      highTemp: 0,
-    },
   });
 
   async function onSubmit(body: z.infer<typeof FormSchema>) {
-    const { t } = useTranslation();
     setLoading(true);
     try {
       const ingredient = await createYeast(body);
@@ -102,7 +91,7 @@ export function NewYeastForm() {
               <FormItem>
                 <FormLabel>{t("yeastBrand")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="0" {...field} />
+                  <Input placeholder="Lalvin" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -116,7 +105,7 @@ export function NewYeastForm() {
               <FormItem>
                 <FormLabel>{t("n2Requirement.label")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="14" {...field} />
+                  <Input placeholder="Low" {...field} />
                 </FormControl>
 
                 <FormMessage />
