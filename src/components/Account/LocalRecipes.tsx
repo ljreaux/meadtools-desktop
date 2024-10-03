@@ -63,8 +63,8 @@ function LocalRecipes({
         : "";
       setFilePath(file_path);
 
-      const goToPdf = "/?pdf=true" + hydroPath;
-      const goToHydro = `/?hydro=true` + hydroPath;
+      const goToPdf = "/local/?pdf=true" + hydroPath;
+      const goToHydro = `/local/?hydro=true` + hydroPath;
 
       if (pdf) navigate(goToPdf);
       else if (hydro) navigate(goToHydro);

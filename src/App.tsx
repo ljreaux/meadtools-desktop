@@ -25,7 +25,6 @@ import YeastTable from "./components/YeastDataTable/Table";
 import Juice from "./components/Juice/Juice";
 import ManualEntry from "./components/PillData/ManualEntry";
 import { checkForAppUpdates } from "./updater";
-// import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 
 export interface Additive {
   name: string;
@@ -80,16 +79,17 @@ function App() {
   const [filePath, setFilePath] = useState<string | null>(null);
   useEffect(() => {
     const root = document.querySelector("#root");
-    const unlisten = listen("tauri://file-drop", (event) => {
-      if (event.payload) {
-        const [filePath] = event.payload as string[];
+    const unlisten = listen("tauri://drag-drop", (event) => {
+      const { payload }: { payload: any } = event;
+      if (payload) {
+        const [filePath] = payload.paths as string[];
         if (root) {
           root.classList.remove("blur");
         }
 
         if (filePath.endsWith(".mead")) {
           setFilePath(filePath);
-          navigate("/");
+          navigate("/local");
         } else alert("Please select a valid .mead file");
       }
     });
@@ -100,7 +100,7 @@ function App() {
   }, []);
   useEffect(() => {
     const root = document.querySelector("#root");
-    const unlisten = listen("tauri://file-drop-hover", () => {
+    const unlisten = listen("tauri://drag-enter", () => {
       if (root) {
         root.classList.add("blur");
       }
@@ -188,7 +188,7 @@ function App() {
       <main className="flex items-center justify-center w-full min-h-[100vh] bg-secondary">
         <Routes>
           <Route
-            path="/home"
+            path="/"
             element={
               <Home
                 recipeData={recipeData}
@@ -236,7 +236,7 @@ function App() {
           />
           <Route path="/juice" element={<Juice />} />
           <Route
-            path="/"
+            path="/local"
             element={
               <LocalRecipe
                 ingredientsList={ingredientsList}
