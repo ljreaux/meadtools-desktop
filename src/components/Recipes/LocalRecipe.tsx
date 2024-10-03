@@ -233,22 +233,6 @@ export default function LocalRecipe({
   }, [recipeData, ingredientsList, data, yeasts, nuteInfo]);
 
   const { next, back, goTo, step, currentStepIndex, steps } = useMultiStepForm([
-    <>
-      <Button
-        onClick={() => fileDialog()}
-        variant={"secondary"}
-        className="my-4"
-      >
-        {t("desktop.open")}
-      </Button>
-      {t("accountPage.or")}
-      <Link
-        to={"/home"}
-        className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
-      >
-        {t("desktop.goTo")}
-      </Link>
-    </>,
     <RecipeBuilder
       {...recipeData}
       setRecipeData={setRecipeData}
@@ -335,13 +319,17 @@ export default function LocalRecipe({
     <>
       {!token ? (
         <>
-          <Link
-            to={"/login"}
-            className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
-          >
-            {t("recipeForm.login")}
-          </Link>
-          {t("accountPage.or")}
+          {!showLocalForm && (
+            <>
+              <Link
+                to={"/login"}
+                className="flex items-center justify-center gap-4 px-8 py-2 my-4 text-lg border border-solid rounded-lg bg-background text-foreground hover:bg-foreground hover:border-background hover:text-background sm:gap-8 group"
+              >
+                {t("recipeForm.login")}
+              </Link>
+              {t("accountPage.or")}
+            </>
+          )}
           {filePath && (
             <>
               {showLocalForm && (
@@ -354,8 +342,9 @@ export default function LocalRecipe({
               <Button
                 variant={"secondary"}
                 onClick={() => setShowLocalForm(!showLocalForm)}
+                className=" md:w-1/4 md:max-w-56"
               >
-                {t("updateLocalChanges")}
+                {showLocalForm ? t("meadtoolsOnline") : t("updateLocalChanges")}
               </Button>
             </>
           )}
@@ -423,7 +412,6 @@ export default function LocalRecipe({
       setNuteInfo(nuteInfo);
       setPrimaryNotes(cocatNotes(primaryNotes));
       setSecondaryNotes(cocatNotes(secondaryNotes));
-      goTo(1);
     } catch (error) {
       console.error("Error opening file dialog:", error);
     } finally {
@@ -461,59 +449,55 @@ export default function LocalRecipe({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full mt-12 mb-12">
+    <div className="flex flex-col items-center justify-center w-full my-12">
       {loading ? <Loading /> : step}
 
-      {currentStepIndex !== 0 && (
-        <>
-          <div className="flex items-center justify-center w-1/4">
-            {currentStepIndex > 0 && (
-              <Button
-                variant={"secondary"}
-                onClick={back}
-                className="flex-1 w-full"
-              >
-                {t("buttonLabels.back")}
-              </Button>
-            )}
-            {currentStepIndex < steps.length - 1 && (
-              <Button
-                variant={"secondary"}
-                className="flex-1 w-full"
-                onClick={() => {
-                  setData((prev) => ({
-                    ...prev,
-                    yanContribution,
-                  }));
-                  next();
-                }}
-              >
-                {t("buttonLabels.next")}
-              </Button>
-            )}
-          </div>
-          <div className="md:w-1/4 md:max-w-56 flex items-center justify-between mb-[3rem]">
-            <ResetButton
-              setRecipeData={setRecipeData}
-              setData={setData}
-              recipeData={recipeData}
-              setPrimaryNotes={setPrimaryNotes}
-              setSecondaryNotes={setSecondaryNotes}
-            />
-            {currentStepIndex !== steps.length - 3 && (
-              <Button
-                variant={"secondary"}
-                className="flex-1"
-                onClick={() => goTo(steps.length - 3)}
-              >
-                <div className="flex items-center justify-center w-full h-full text-2xl">
-                  <MdPictureAsPdf />
-                </div>
-              </Button>
-            )}
-          </div>
-        </>
-      )}
+      <div className="flex items-center justify-center md:w-1/4 md:max-w-56 ">
+        {currentStepIndex > 0 && (
+          <Button
+            variant={"secondary"}
+            onClick={back}
+            className="flex-1 w-full"
+          >
+            {t("buttonLabels.back")}
+          </Button>
+        )}
+        {currentStepIndex < steps.length - 1 && (
+          <Button
+            variant={"secondary"}
+            className="flex-1 w-full"
+            onClick={() => {
+              setData((prev) => ({
+                ...prev,
+                yanContribution,
+              }));
+              next();
+            }}
+          >
+            {t("buttonLabels.next")}
+          </Button>
+        )}
+      </div>
+      <div className="md:w-1/4 md:max-w-56 flex items-center justify-between mb-[3rem]">
+        <ResetButton
+          setRecipeData={setRecipeData}
+          setData={setData}
+          recipeData={recipeData}
+          setPrimaryNotes={setPrimaryNotes}
+          setSecondaryNotes={setSecondaryNotes}
+        />
+        {currentStepIndex !== steps.length - 3 && (
+          <Button
+            variant={"secondary"}
+            className="flex-1"
+            onClick={() => goTo(steps.length - 3)}
+          >
+            <div className="flex items-center justify-center w-full h-full text-2xl">
+              <MdPictureAsPdf />
+            </div>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
