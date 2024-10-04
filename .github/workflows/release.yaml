@@ -16,9 +16,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  UBUNTU: "ubuntu-22.04"
-  MACOS: "macos-latest"
-  WINDOWS: "windows-latest"
   CN_APPLICATION: meadtools/meadtools
 
 jobs:
@@ -60,7 +57,7 @@ jobs:
           sudo apt-get install -y webkit2gtk-4.1
 
       - name: build Tauri app for Windows, Linux
-        if: matrix.os != '${{ env.MACOS }}'
+        if: matrix.os != 'macos-latest'
         run: |
           npm ci
           npm run tauri build
