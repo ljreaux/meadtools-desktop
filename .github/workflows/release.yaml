@@ -40,10 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ${{ env.UBUNTU }}
-          - ${{ env.MACOS }}
-          - ${{ env.WINDOWS }}
+        os: [${{ env.UBUNTU }}, ${{ env.MACOS }}, ${{env.WINDOWS}}]
 
     runs-on: ${{ matrix.os }}
 
