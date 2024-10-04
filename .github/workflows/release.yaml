@@ -16,6 +16,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  UBUNTU: "ubuntu-22.04"
+  MACOS: "macos-latest"
+  WINDOWS: "windows-latest"
   CN_APPLICATION: meadtools/meadtools
 
 jobs:
@@ -37,7 +40,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+        os:
+          - ${{ env.UBUNTU }}
+          - ${{ env.MACOS }}
+          - ${{ env.WINDOWS }}
 
     runs-on: ${{ matrix.os }}
 
@@ -56,10 +62,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y webkit2gtk-4.1
 
-      - name: build tauri app
+      - name: build Tauri app for Windows, Linux
+        if: matrix.os != '${{ env.MACOS }}'
         run: |
           npm ci
           npm run tauri build
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Install x86_64-apple-darwin for mac and build Tauri binaries
+        if: matrix.os == 'macos-latest'
+        run: |
+          rustup target add x86_64-apple-darwin
+          npm ci
+          npm run tauri build -- --target x86_64-apple-darwin
+          npm run tauri build -- --target aarch64-apple-darwin
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
