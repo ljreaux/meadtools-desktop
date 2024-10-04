@@ -16,6 +16,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  UBUNTU: "ubuntu-22.04"
+  MACOS: "macos-latest"
+  WINDOWS: "windows-latest"
   CN_APPLICATION: meadtools/meadtools
 
 jobs:
@@ -37,7 +40,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+        os:
+          - ${{ env.UBUNTU }}
+          - ${{ env.MACOS }}
+          - ${{ env.WINDOWS }}
 
     runs-on: ${{ matrix.os }}
 
