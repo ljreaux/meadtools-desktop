@@ -20,14 +20,22 @@ import { useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
 import { updateIngredient } from "@/db";
 import { useTranslation } from "react-i18next";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { categories, numericString } from "../dashboardData";
 export const API_URL = "https://mead-tools-api.vercel.app/api";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
     message: "name must be at least 2 characters.",
   }),
-  sugar_content: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
-  water_content: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  sugar_content: numericString(z.number()),
+  water_content: numericString(z.number()),
   category: z.string().min(2, {
     message: "category must be at least 2 characters.",
   }),
@@ -45,6 +53,7 @@ export function EditIngredientForm({
   };
 }) {
   const { t } = useTranslation();
+
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -60,7 +69,7 @@ export function EditIngredientForm({
       const dataCopy = { ...data, category: data.category.toLowerCase() };
       await updateIngredient(ingredient.id.toString(), dataCopy);
       toast({ description: "Ingredient Edited Successfully." });
-      nav("/dashboard/ingredients");
+      nav("/ingredients");
     } catch (err) {
       console.error(err);
       toast({ description: "Failed to Edit", variant: "destructive" });
@@ -131,10 +140,23 @@ export function EditIngredientForm({
                 <FormLabel>
                   {t("desktop.ingredientHeadings.category")}
                 </FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.name} value={cat.name}>
+                        {t(cat.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
