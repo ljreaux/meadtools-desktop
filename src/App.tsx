@@ -79,15 +79,17 @@ function App() {
   const [filePath, setFilePath] = useState<string | null>(null);
   useEffect(() => {
     const root = document.querySelector("#root");
-    const unlisten = listen("tauri://drag-drop", (event) => {
-      const { payload }: { payload: any } = event;
-      if (payload) {
-        const [filePath] = payload.paths as string[];
-        if (root) {
-          root.classList.remove("blur");
-        }
 
-        if (filePath.endsWith(".mead")) {
+    const unlisten = listen("tauri://drag-drop", (event) => {
+      root?.classList.remove("blur");
+
+      const { payload }: { payload: any } = event;
+      const isFileDrop = !!payload.paths.length;
+
+      if (isFileDrop) {
+        const [filePath] = payload.paths as string[];
+
+        if (filePath?.endsWith(".mead")) {
           setFilePath(filePath);
           navigate("/local");
         } else alert("Please select a valid .mead file");
@@ -100,16 +102,18 @@ function App() {
   }, []);
   useEffect(() => {
     const root = document.querySelector("#root");
-    const unlisten = listen("tauri://drag-enter", () => {
-      if (root) {
-        root.classList.add("blur");
-      }
+    const unlisten = listen("tauri://drag-enter", (e) => {
+      const { payload }: { payload: any } = e;
+      const isFileDrop = !!payload.paths.length;
+
+      if (isFileDrop) root?.classList.add("blur");
     });
 
     return () => {
       unlisten.then((f) => f());
     };
   }, []);
+
   useEffect(() => {
     const unlisten = listen(
       "deep-link://new-url",

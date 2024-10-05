@@ -160,7 +160,7 @@ function LocalRecipes({
   return (
     <div className="relative flex flex-col items-center w-11/12 p-8 my-24 sm:w-9/12 rounded-xl bg-background">
       <Button className="ml-auto" variant={"secondary"} onClick={definePath}>
-        Set Default Path
+        {t("defaultPath")}
       </Button>
       <Title header={t("localRecipes")} />
       <div

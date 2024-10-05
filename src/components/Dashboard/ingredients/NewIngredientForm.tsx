@@ -20,8 +20,14 @@ import { useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
 import { createIngredient } from "@/db";
 import { useTranslation } from "react-i18next";
-
-export const API_URL = "https://mead-tools-api.vercel.app/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { categories } from "../dashboardData";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
@@ -42,11 +48,15 @@ const FormSchema = z.object({
 
 export function NewIngredientForm() {
   const { t } = useTranslation();
+
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      category: categories[0].name,
+    },
   });
 
   async function onSubmit(body: z.infer<typeof FormSchema>) {
@@ -131,13 +141,25 @@ export function NewIngredientForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {" "}
                   {t("desktop.ingredientHeadings.category")}
                 </FormLabel>
-                <FormControl>
-                  <Input placeholder="fruit" {...field} />
-                </FormControl>
-
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.name} value={cat.name}>
+                        {t(cat.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

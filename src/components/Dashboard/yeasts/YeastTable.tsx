@@ -99,12 +99,12 @@ const DeleteButton = ({ handleClick }: { handleClick: () => void }) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             className={buttonVariants({ variant: "destructive" })}
             onClick={handleClick}
           >
-            {t("delete")}
+            {t("desktop.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -18,6 +18,14 @@ import { useNavigate } from "react-router-dom";
 import Spinner from "@/components/Spinner";
 import { createYeast } from "@/db";
 import { useTranslation } from "react-i18next";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { brands, convertToF, n2Requirements } from "../dashboardData";
 
 const FormSchema = z.object({
   brand: z.string().min(2, {
@@ -35,18 +43,32 @@ const FormSchema = z.object({
 });
 
 export function NewYeastForm() {
+  const [tempUnits, setTempUnits] = useState<"F" | "C">("F");
+  const isC = tempUnits === "C";
+
   const { t } = useTranslation();
+
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      brand: brands[0].name,
+      nitrogenRequirement: n2Requirements[0].name,
+    },
   });
 
   async function onSubmit(body: z.infer<typeof FormSchema>) {
+    const data = {
+      ...body,
+      lowTemp: isC ? convertToF(body.lowTemp) : body.lowTemp,
+      highTemp: isC ? convertToF(body.highTemp) : body.highTemp,
+    };
+    console.log(data);
     setLoading(true);
     try {
-      const ingredient = await createYeast(body);
+      const ingredient = await createYeast(data);
 
       if (!ingredient) throw new Error();
       toast({ description: t("desktop.createdSuccessfully") });
@@ -90,24 +112,51 @@ export function NewYeastForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("yeastBrand")}</FormLabel>
-                <FormControl>
-                  <Input placeholder="Lalvin" {...field} />
-                </FormControl>
-
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand.name} value={brand.name}>
+                        {t(brand.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="nitrogenRequirement"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("n2Requirement.label")}</FormLabel>
-                <FormControl>
-                  <Input placeholder="Low" {...field} />
-                </FormControl>
-
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {n2Requirements.map((req) => (
+                      <SelectItem key={req.name} value={req.name}>
+                        {t(req.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -126,6 +175,21 @@ export function NewYeastForm() {
               </FormItem>
             )}
           />
+          <div className="space-y-2">
+            <FormLabel>{t("UNITS")}</FormLabel>
+            <Select
+              value={tempUnits}
+              onValueChange={(val: "C" | "F") => setTempUnits(val)}
+            >
+              <SelectTrigger>
+                <SelectValue></SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="F">°F</SelectItem>
+                <SelectItem value="C">°C</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <FormField
             control={form.control}
             name="lowTemp"
