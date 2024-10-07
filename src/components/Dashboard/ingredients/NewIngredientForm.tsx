@@ -35,11 +35,17 @@ const FormSchema = z.object({
   }),
   sugarContent: z.preprocess(
     (a) => Number(z.string().parse(a)),
-    z.number().min(0)
+    z
+      .number()
+      .min(0.1, { message: "Sugar content must be greater than zero" })
+      .max(100, { message: "Sugar content cannot be greater than 100" })
   ),
   waterContent: z.preprocess(
     (a) => Number(z.string().parse(a)),
-    z.number().min(0)
+    z
+      .number()
+      .min(0.1, { message: "Sugar content must be greater than zero" })
+      .max(100, { message: "Sugar content cannot be greater than 100" })
   ),
   category: z.string().min(2, {
     message: "Ingredient category must be at least 2 characters.",
@@ -56,6 +62,9 @@ export function NewIngredientForm() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       category: categories[0].name,
+      sugarContent: "" as unknown as number,
+      waterContent: "" as unknown as number,
+      name: "",
     },
   });
 

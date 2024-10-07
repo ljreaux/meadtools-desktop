@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Switch } from "../ui/switch";
+import { toast } from "../ui/use-toast";
 
 export default function RecipeBuilder({
   ingredients,
@@ -261,6 +262,12 @@ export default function RecipeBuilder({
   };
 
   const volumeRef = useRef<HTMLInputElement>(null!);
+
+  const validateVolume = (volume: string) => {
+    const parsed = volume.replace(",", ".");
+    const currentVolume = Number(parsed);
+    return { currentVolume, isValid: !isNaN(currentVolume) };
+  };
   return (
     <>
       {loading && <Loading />}
@@ -364,11 +371,7 @@ export default function RecipeBuilder({
           <TableBody>
             {ingredients.map((ingredient, i) => {
               const filterTerms = ["water", "juice"];
-              const deletable =
-                i >= 3 ||
-                (i === 1 &&
-                  (filterTerms.includes(ingredient.category) ||
-                    ingredients.length === 3));
+              const deletable = i >= 1;
               return (
                 <Ingredient
                   ingredient={ingredient}
@@ -410,7 +413,7 @@ export default function RecipeBuilder({
           <button
             type="button"
             className={`group w-fit text-sidebar hover:text-foreground transition-colors disabled:cursor-not-allowed`}
-            disabled={ingredients.length <= 4}
+            disabled={ingredients.length <= 1}
             onClick={() => removeLine(ingredients.length - 1)}
           >
             <FaMinusSquare className="group-hover:scale-125 group-hover:text-background" />
@@ -548,9 +551,17 @@ export default function RecipeBuilder({
                     variant={"secondary"}
                     type="button"
                     onClick={() => {
-                      const newVolume =
-                        Number(volumeRef.current.value) ?? blend.totalVolume;
-                      scaleRecipe(blend.totalVolume, newVolume);
+                      const { currentVolume, isValid } = validateVolume(
+                        volumeRef.current.value
+                      );
+
+                      if (isValid)
+                        return scaleRecipe(blend.totalVolume, currentVolume);
+
+                      toast({
+                        description: t("validNumber"),
+                        variant: "destructive",
+                      });
                     }}
                   >
                     {t("scale.title")}

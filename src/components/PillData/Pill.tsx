@@ -371,6 +371,14 @@ function Pill({
             </Link>
           </>
         )}
+        {fileType === "hydro" && (
+          <Link
+            to={`/hydro/edit?hydroPath=${filePath}`}
+            className={buttonVariants({ variant: "default" })}
+          >
+            Edit Hydrometer Data
+          </Link>
+        )}
       </div>
     </div>
   );

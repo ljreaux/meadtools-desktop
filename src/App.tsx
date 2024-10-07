@@ -24,7 +24,8 @@ import Reset from "./components/Dashboard/Reset";
 import YeastTable from "./components/YeastDataTable/Table";
 import Juice from "./components/Juice/Juice";
 import ManualEntry from "./components/PillData/ManualEntry";
-import { checkForAppUpdates } from "./updater";
+import UpdateDialog from "./updateDialog";
+import EditHydro from "./components/PillData/EditHydro";
 
 export interface Additive {
   name: string;
@@ -182,14 +183,11 @@ function App() {
     }));
   }, [isMetric]);
 
-  useEffect(() => {
-    (async () => await checkForAppUpdates())();
-  }, []);
-
   return (
     <>
       <Navbar token={token} setToken={setToken} setUser={setUser} />
       <main className="flex items-center justify-center w-full min-h-[100vh] bg-secondary">
+        <UpdateDialog />
         <Routes>
           <Route
             path="/"
@@ -260,6 +258,7 @@ function App() {
           <Route path="/reset" element={<Reset />} />
           <Route path="/yeastTable" element={<YeastTable />} />
           <Route path="/manualEntry/:id" element={<ManualEntry />} />
+          <Route path="/hydro/edit" element={<EditHydro />} />
         </Routes>
 
         <BottomBar />
