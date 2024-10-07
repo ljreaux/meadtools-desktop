@@ -254,6 +254,7 @@ export default function Ingredient({
           <button
             className="absolute right-0 w-8 text-xl"
             onClick={() => removeLine(index)}
+            type="button"
           >
             <FaMinusSquare />
           </button>

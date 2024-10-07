@@ -148,7 +148,7 @@ export default function Navbar({
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuTrigger className="px-2">
-                {t("calculators.label")}
+                <Link to=""> {t("calculators.label")}</Link>
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid sm:gap-3 gap-2 sm:p-4 sm:min-w-[400px] min-w-[300px] lg:grid-cols-[1fr_1fr] text-start">
@@ -181,7 +181,7 @@ export default function Navbar({
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger className="px-2">
-                {t("account.label")}
+                <Link to=""> {t("account.label")}</Link>
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="flex sm:min-w-[400px] min-w-[300px] p-4 items-center justify-center">
@@ -232,7 +232,7 @@ export default function Navbar({
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger className="px-2">
-                {t("additionalLinks.label")}
+                <Link to={""}> {t("additionalLinks.label")}</Link>
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="flex gap-3 p-4 sm:min-w-[400px] min-w-[300px] justify-center">

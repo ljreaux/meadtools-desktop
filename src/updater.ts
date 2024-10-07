@@ -4,12 +4,11 @@ import { relaunch } from "@tauri-apps/plugin-process";
 
 export async function checkForAppUpdates() {
   const update = await check();
-
+  console.log(update);
   if (update?.available) {
     const yes = await ask(
       `
 Update to ${update.version} is available!
-Release notes: ${update.body}
         `,
       {
         title: "Update Now!",
@@ -18,7 +17,7 @@ Release notes: ${update.body}
         cancelLabel: "Cancel",
       }
     );
-
+    console.log(yes);
     if (yes) {
       await update.downloadAndInstall();
       await relaunch();

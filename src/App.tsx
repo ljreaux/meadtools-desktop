@@ -69,6 +69,8 @@ export type Opened = {
 };
 
 function App() {
+  const [firstMount, setFirstMount] = useState(true);
+
   const navigate = useNavigate();
   const [oathRedirect, setOathRedirect] = useState<null | string>(null);
 
@@ -183,7 +185,10 @@ function App() {
   }, [isMetric]);
 
   useEffect(() => {
-    (async () => await checkForAppUpdates())();
+    if (firstMount)
+      (async () => await checkForAppUpdates())().then(() =>
+        setFirstMount(false)
+      );
   }, []);
 
   return (

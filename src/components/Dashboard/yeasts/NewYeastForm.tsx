@@ -32,14 +32,26 @@ const FormSchema = z.object({
     message: "brand must be at least 2 characters.",
   }),
   name: z.string().min(2, {
-    message: "name must be at least 2 characters.",
+    message: "Name must be at least 2 characters.",
   }),
   nitrogenRequirement: z.string().min(2, {
     message: "N2 requirement must be at least 2 characters.",
   }),
-  tolerance: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
-  lowTemp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
-  highTemp: z.preprocess((a) => Number(z.string().parse(a)), z.number()),
+  tolerance: z.preprocess(
+    (a) => Number(z.string().parse(a)),
+    z
+      .number()
+      .min(0.1, { message: "tolerance must be greater than zero" })
+      .max(20, { message: "tolerance must be less than 20" })
+  ),
+  lowTemp: z.preprocess(
+    (a) => Number(z.string().parse(a)),
+    z.number().min(0.1, { message: "Must be a valid positive number" })
+  ),
+  highTemp: z.preprocess(
+    (a) => Number(z.string().parse(a)),
+    z.number().min(0.1, { message: "Must be a valid positive number" })
+  ),
 });
 
 export function NewYeastForm() {
@@ -53,7 +65,12 @@ export function NewYeastForm() {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+
     defaultValues: {
+      name: "",
+      tolerance: "" as unknown as number,
+      lowTemp: "" as unknown as number,
+      highTemp: "" as unknown as number,
       brand: brands[0].name,
       nitrogenRequirement: n2Requirements[0].name,
     },
