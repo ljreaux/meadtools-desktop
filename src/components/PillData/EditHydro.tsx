@@ -3,8 +3,7 @@ import { FileData } from "./Pill";
 import EntryForm from "./EntryForm";
 import useChangeLogger from "@/hooks/useChangeLogger";
 import { Button } from "../ui/button";
-import { save } from "@tauri-apps/plugin-dialog";
-import { writeTextFile } from "@tauri-apps/plugin-fs";
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import {
   Select,
   SelectContent,
@@ -25,15 +24,14 @@ import { Label } from "../ui/label";
 import { DateTimePicker } from "../ui/datetime-picker";
 import { Input } from "../ui/input";
 import { calcABV } from "@/hooks/useAbv";
-import { useNavigate, useParams } from "react-router-dom";
-import { getRecipeById, updateHydro } from "@/db";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Title from "../Title";
 
-function ManualEntry() {
-  const { id } = useParams();
+function EditHydro() {
+  const [searchParams] = useSearchParams();
+  const hydroPath = searchParams.get("hydroPath");
   const nav = useNavigate();
 
-  const [name, setName] = useState("");
   const [tempUnits, setTempUnits] = useState<"F" | "C">("F");
   const [takingTemp, setTakingTemp] = useState(false);
   const [entries, setEntries] = useState<
@@ -47,19 +45,10 @@ function ManualEntry() {
   useChangeLogger(entries);
 
   const saveLocally = async () => {
-    const name = "Hydro Data";
     try {
-      const file = await save({
-        title: name,
-        filters: [{ name, extensions: ["hydro"] }],
-      });
-      if (!file) throw new Error("Couldn't save file");
-      await writeTextFile(file, JSON.stringify(entries));
+      if (hydroPath) await writeTextFile(hydroPath, JSON.stringify(entries));
 
-      await updateHydro(id || "0", {
-        hydrometer_data_path: file as string,
-      });
-      alert("File saved successfully: " + file);
+      alert("File saved successfully: " + hydroPath);
       nav("/localRecipes/");
     } catch (err) {
       console.error("Error saving file:", err);
@@ -85,17 +74,23 @@ function ManualEntry() {
 
   useEffect(() => {
     (async () => {
-      if (id) {
-        const [recipe] = await getRecipeById(id);
-
-        setName(recipe.name);
+      if (hydroPath) {
+        try {
+          const savedData = await readTextFile(hydroPath);
+          const parsedData = JSON.parse(savedData);
+          setEntries(
+            parsedData as (FileData & { id: number; tempUnits: "F" | "C" })[]
+          );
+        } catch (err) {
+          console.error("Error reading file:", err);
+        }
       }
     })();
-  }, []);
+  }, [hydroPath]);
 
   return (
-    <div className="w-11/12 my-24 p-p-24 bg-background rounded-xl">
-      <Title header={name} />
+    <div className="w-11/12 p-24 my-24 bg-background rounded-xl">
+      <Title header={"Edit Hydrometer File"} />
       <div className="grid items-center justify-center w-full grid-cols-2 gap-6">
         <Label className="flex items-center justify-center gap-2 my-6">
           Taking Temperature Readings?
@@ -244,4 +239,4 @@ const EntryRow = ({
   );
 };
 
-export default ManualEntry;
+export default EditHydro;
