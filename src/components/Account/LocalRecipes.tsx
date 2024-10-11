@@ -223,7 +223,7 @@ function LocalRecipes({
                           variant={"secondary"}
                           onClick={() => addHydrometerData(recipe)}
                         >
-                          {t("desktop.manual")}
+                          {t("desktop.openHydro")}
                         </Button>
                       </PopoverContent>
                     </Popover>
