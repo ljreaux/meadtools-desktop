@@ -17,6 +17,7 @@ import { updateRecipe } from "@/db";
 import { Link } from "react-router-dom";
 import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { t } from "i18next";
 
 type csvReturnType = { data: any[]; errors: any[]; meta: {} };
 type JSONType = { data: any[]; errors: any[] };
@@ -323,10 +324,12 @@ function Pill({
           <SelectValue></SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="pill">Pill</SelectItem>
-          <SelectItem value="tilt">Tilt</SelectItem>
-          <SelectItem value="iSpindel">iSpindel</SelectItem>
-          <SelectItem value="hydro">Hydrometer</SelectItem>
+          <SelectItem value="pill">{t("desktop.hydroType.pill")}</SelectItem>
+          <SelectItem value="tilt">{t("desktop.hydroType.tilt")}</SelectItem>
+          <SelectItem value="iSpindel">
+            {t("desktop.hydroType.ispindel")}
+          </SelectItem>
+          <SelectItem value="hydro">{t("desktop.hydroType.hydro")}</SelectItem>
         </SelectContent>
       </Select>
       {fileType === "pill" && (
@@ -360,14 +363,16 @@ function Pill({
         ) : (
           <>
             <Button onClick={findFilePath} variant={"secondary"}>
-              Open {fileType} file
+              {t("desktop.openFile", {
+                fileType: t(`desktop.hydroType.${fileType}`),
+              })}
             </Button>{" "}
-            OR
+            {t("accountPage.or")}
             <Link
               to={`/manualEntry/${id}`}
               className={buttonVariants({ variant: "secondary" })}
             >
-              Enter Manually
+              {t("desktop.enterManually")}
             </Link>
           </>
         )}
@@ -376,7 +381,7 @@ function Pill({
             to={`/hydro/edit?hydroPath=${filePath}`}
             className={buttonVariants({ variant: "default" })}
           >
-            Edit Hydrometer Data
+            {t("desktop.editHydro")}
           </Link>
         )}
       </div>
