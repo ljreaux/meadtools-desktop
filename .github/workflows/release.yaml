@@ -54,7 +54,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.1
+          sudo apt-get install -y libwebkit2gtk-4.1-dev
 
       - name: build Tauri app for Windows, Linux
         if: matrix.os != 'macos-latest'
