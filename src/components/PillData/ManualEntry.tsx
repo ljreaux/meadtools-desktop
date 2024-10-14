@@ -94,7 +94,7 @@ function ManualEntry() {
   }, []);
 
   return (
-    <div className="w-11/12 my-24 p-p-24 bg-background rounded-xl">
+    <div className="w-11/12 p-12 my-24 bg-background rounded-xl">
       <Title header={name} />
       <div className="grid items-center justify-center w-full grid-cols-2 gap-6">
         <Label className="flex items-center justify-center gap-2 my-6">
