@@ -673,117 +673,116 @@ const MyDocument = ({
             })}
           </View>
         )}
-        {secondary.length > 0 && (
-          <View style={[styles.section]} break>
-            {
-              <View style={styles.sectionTwo}>
-                <Text
-                  style={[
-                    styles.tableAlign,
-                    {
-                      width: "50%",
-                      backgroundColor: "gray",
-                      fontFamily: "Times-Bold",
-                      textAlign: "left",
-                      paddingLeft: 10,
-                    },
-                  ]}
-                >
-                  {t("PDF.secondary")}
-                </Text>
-                <Text
-                  style={[
-                    styles.tableAlign,
-                    {
-                      width: "25%",
-                      backgroundColor: "gray",
-                      fontFamily: "Times-Bold",
-                    },
-                  ]}
-                >
-                  {t("PDF.weight")} {units && units.weight}
-                </Text>
-                <Text
-                  style={[
-                    styles.tableAlign,
-                    {
-                      width: "25%",
-                      backgroundColor: "gray",
-                      fontFamily: "Times-Bold",
-                    },
-                  ]}
-                >
-                  {t("PDF.volume")} {units && units.volume}
-                </Text>
-              </View>
-            }
 
-            {secondary.map((item, i) => (
-              <View style={styles.sectionTwo} key={"secondary " + i}>
-                <Text
-                  style={[
-                    styles.tableAlign,
-                    { width: "50%", textAlign: "left", paddingLeft: 10 },
-                  ]}
-                >
-                  {i + 1}. {t(`${lodash.camelCase(item.name)}`)}
-                </Text>
-                <Text style={[styles.tableAlign, { width: "25%" }]}>
-                  {item.details[0]}
-                </Text>
-                <Text style={[styles.tableAlign, { width: "25%" }]}>
-                  {item.details[1]}
-                </Text>
-              </View>
-            ))}
-            {filteredAdditives && filteredAdditives.length > 0 && (
-              <View style={[styles.sectionTwo, { marginTop: 12 }]}>
-                <Text
-                  style={[
-                    styles.tableAlign,
-                    {
-                      width: "75%",
-                      backgroundColor: "gray",
-                      fontFamily: "Times-Bold",
-                      textAlign: "left",
-                      paddingLeft: 10,
-                    },
-                  ]}
-                >
-                  {t("PDF.additives")}
-                </Text>
-                <Text
-                  style={[
-                    styles.tableAlign,
-                    {
-                      width: "25%",
-                      backgroundColor: "gray",
-                      fontFamily: "Times-Bold",
-                    },
-                  ]}
-                >
-                  {t("PDF.addAmount")}
-                </Text>
-              </View>
-            )}
-            {filteredAdditives &&
-              filteredAdditives.map((item, i) => (
-                <View style={styles.sectionTwo} key={"additive " + i}>
-                  <Text
-                    style={[
-                      styles.tableAlign,
-                      { width: "75%", textAlign: "left", paddingLeft: 10 },
-                    ]}
-                  >
-                    {i + 1}. {item.name}
-                  </Text>
-                  <Text style={[styles.tableAlign, { width: "25%" }]}>
-                    {`${item.amount} ${item.unit !== "units" ? item.unit : ""}`}
-                  </Text>
-                </View>
-              ))}
-          </View>
-        )}
+        <View style={[styles.section]} break>
+          {secondary.length > 0 && (
+            <View style={styles.sectionTwo}>
+              <Text
+                style={[
+                  styles.tableAlign,
+                  {
+                    width: "50%",
+                    backgroundColor: "gray",
+                    fontFamily: "Times-Bold",
+                    textAlign: "left",
+                    paddingLeft: 10,
+                  },
+                ]}
+              >
+                {t("PDF.secondary")}
+              </Text>
+              <Text
+                style={[
+                  styles.tableAlign,
+                  {
+                    width: "25%",
+                    backgroundColor: "gray",
+                    fontFamily: "Times-Bold",
+                  },
+                ]}
+              >
+                {t("PDF.weight")} {units && units.weight}
+              </Text>
+              <Text
+                style={[
+                  styles.tableAlign,
+                  {
+                    width: "25%",
+                    backgroundColor: "gray",
+                    fontFamily: "Times-Bold",
+                  },
+                ]}
+              >
+                {t("PDF.volume")} {units && units.volume}
+              </Text>
+            </View>
+          )}
+
+          {secondary.map((item, i) => (
+            <View style={styles.sectionTwo} key={"secondary " + i}>
+              <Text
+                style={[
+                  styles.tableAlign,
+                  { width: "50%", textAlign: "left", paddingLeft: 10 },
+                ]}
+              >
+                {i + 1}. {t(`${lodash.camelCase(item.name)}`)}
+              </Text>
+              <Text style={[styles.tableAlign, { width: "25%" }]}>
+                {item.details[0]}
+              </Text>
+              <Text style={[styles.tableAlign, { width: "25%" }]}>
+                {item.details[1]}
+              </Text>
+            </View>
+          ))}
+          {filteredAdditives?.length && (
+            <View style={[styles.sectionTwo, { marginTop: 12 }]}>
+              <Text
+                style={[
+                  styles.tableAlign,
+                  {
+                    width: "75%",
+                    backgroundColor: "gray",
+                    fontFamily: "Times-Bold",
+                    textAlign: "left",
+                    paddingLeft: 10,
+                  },
+                ]}
+              >
+                {t("PDF.additives")}
+              </Text>
+              <Text
+                style={[
+                  styles.tableAlign,
+                  {
+                    width: "25%",
+                    backgroundColor: "gray",
+                    fontFamily: "Times-Bold",
+                  },
+                ]}
+              >
+                {t("PDF.addAmount")}
+              </Text>
+            </View>
+          )}
+          {filteredAdditives?.map((item, i) => (
+            <View style={styles.sectionTwo} key={"additive " + i}>
+              <Text
+                style={[
+                  styles.tableAlign,
+                  { width: "75%", textAlign: "left", paddingLeft: 10 },
+                ]}
+              >
+                {i + 1}. {item.name}
+              </Text>
+              <Text style={[styles.tableAlign, { width: "25%" }]}>
+                {`${item.amount} ${item.unit !== "units" ? item.unit : ""}`}
+              </Text>
+            </View>
+          ))}
+        </View>
+
         {secondaryNotes.length && secondaryNotes[0][0].length && (
           <View
             style={{
