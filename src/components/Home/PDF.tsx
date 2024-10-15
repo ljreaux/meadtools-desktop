@@ -15,7 +15,6 @@ import { toBrix } from "../../helpers/unitConverters";
 import useAbv from "../../hooks/useAbv.ts";
 import { FormData } from "../Nutrients/NutrientCalc";
 import calcSb from "../../helpers/calcSb";
-import i18n from "../../localization/i18n.ts";
 import { Fragment, useEffect, useState } from "react";
 
 // Create styles
@@ -87,7 +86,15 @@ const MyDocument = ({
     primaryNotes: string[][];
     secondaryNotes: string[][];
   }) => {
-  const { t } = useTranslation();
+  const [adding, setAdding] = useState(false);
+  useEffect(() => {
+    const adding = JSON.parse(
+      localStorage.getItem("addingStabilizers") || '{"adding": false}'
+    )?.adding;
+    setAdding(adding);
+  }, [sorbate, sulfite]);
+
+  const { t, i18n } = useTranslation();
   const ABVOBJ = OG && FG ? { OG, FG } : { OG: 1, FG: 1 };
   const { delle } = useAbv(ABVOBJ);
 
@@ -109,6 +116,19 @@ const MyDocument = ({
   const filteredAdditives = additives?.filter((item) => {
     return item.amount > 0 && item.name.length > 0;
   });
+
+  const isMetric = units?.weight === "kg" || units?.volume === "liter";
+  function toC(num?: number) {
+    if (!num) return "";
+    return isMetric ? Math.round((num - 32) * (5 / 9)) : num;
+  }
+  const lowTemp = toC(selected?.yeastDetails.low_temp);
+  const highTemp = toC(selected?.yeastDetails.high_temp);
+
+  const tempString = `${t("PDF.tempRange")} ${lowTemp}-${highTemp}°${
+    isMetric ? "C" : "F"
+  }`;
+
   return (
     <Document title="MeadTools Recipe PDF" language={i18n.language}>
       <Page size="A4" style={styles.page} wrap>
@@ -195,11 +215,7 @@ const MyDocument = ({
                         : ""
                     } ${selected?.yeastDetails.name}`}
                 </Text>
-                <Text>
-                  {`${t("PDF.tempRange")} ${selected?.yeastDetails.low_temp}-${
-                    selected?.yeastDetails.high_temp
-                  }°F`}
-                </Text>
+                <Text>{tempString}</Text>
               </View>
               <View
                 style={{
@@ -443,15 +459,27 @@ const MyDocument = ({
                   </Text>
                 </View>
               </View>
-              <View
-                style={{
-                  width: "100%",
-                  flexDirection: "row",
-                  marginTop: 16,
-                  flexWrap: "wrap",
-                }}
-              >
-                {sorbate && sulfite && campden && (
+              {adding ? (
+                <View
+                  style={{
+                    width: "100%",
+                    flexDirection: "row",
+                    marginTop: 16,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {sorbate && sulfite && campden && (
+                    <Text
+                      style={{
+                        width: "50%",
+                        border: "1px solid black",
+                        backgroundColor: "gray",
+                        fontFamily: "Times-Bold",
+                      }}
+                    >
+                      {t("PDF.stabilizers")}
+                    </Text>
+                  )}
                   <Text
                     style={{
                       width: "50%",
@@ -460,54 +488,73 @@ const MyDocument = ({
                       fontFamily: "Times-Bold",
                     }}
                   >
-                    {t("PDF.stabilizers")}
+                    {t("PDF.remaining")}
                   </Text>
-                )}
-                <Text
-                  style={{
-                    width: "50%",
-                    border: "1px solid black",
-                    backgroundColor: "gray",
-                    fontFamily: "Times-Bold",
-                  }}
-                >
-                  {t("PDF.remaining")}
-                </Text>
-                <View style={{ width: "50%" }}>
+                  {adding && (
+                    <View style={{ width: "50%" }}>
+                      <Text
+                        style={{
+                          border: "1px solid black",
+                        }}
+                      >
+                        {sulfite &&
+                          campden &&
+                          `${Math.round(sulfite * 1000) / 1000}g ${t(
+                            "PDF.kmeta"
+                          )} ${t("accountPage.or")} ${
+                            Math.round(campden * 10) / 10
+                          } ${t("list.campden")}`}
+                      </Text>
+                      <Text
+                        style={{
+                          border: "1px solid black",
+                        }}
+                      >
+                        {sorbate &&
+                          `${Math.round(sorbate * 1000) / 1000}g ${t(
+                            "PDF.ksorb"
+                          )}`}
+                      </Text>
+                    </View>
+                  )}
                   <Text
                     style={{
                       border: "1px solid black",
+                      width: "50%",
+                      alignItems: "center",
                     }}
                   >
-                    {sulfite &&
-                      campden &&
-                      `${Math.round(sulfite * 1000) / 1000}g ${t(
-                        "PDF.kmeta"
-                      )} ${t("accountPage.or")} ${
-                        Math.round(campden * 10) / 10
-                      } ${t("list.campden")}`}
-                  </Text>
-                  <Text
-                    style={{
-                      border: "1px solid black",
-                    }}
-                  >
-                    {sorbate &&
-                      `${Math.round(sorbate * 1000) / 1000}g ${t("PDF.ksorb")}`}
+                    {nuteInfo
+                      ? `${Math.round(nuteInfo?.remainingYan)}PPM`
+                      : "0PPM"}
                   </Text>
                 </View>
-                <Text
-                  style={{
-                    border: "1px solid black",
-                    width: "50%",
-                    alignItems: "center",
-                  }}
-                >
-                  {nuteInfo
-                    ? `${Math.round(nuteInfo?.remainingYan)}PPM`
-                    : "0PPM"}
-                </Text>
-              </View>
+              ) : (
+                <>
+                  <Text
+                    style={{
+                      width: "100%",
+                      border: "1px solid black",
+                      backgroundColor: "gray",
+                      fontFamily: "Times-Bold",
+                      marginTop: 10,
+                    }}
+                  >
+                    {t("PDF.remaining")}
+                  </Text>
+                  <Text
+                    style={{
+                      border: "1px solid black",
+                      width: "100%",
+                      alignItems: "center",
+                    }}
+                  >
+                    {nuteInfo
+                      ? `${Math.round(nuteInfo?.remainingYan)}PPM`
+                      : "0PPM"}
+                  </Text>
+                </>
+              )}
             </View>
           </View>
         </View>
@@ -626,115 +673,117 @@ const MyDocument = ({
             })}
           </View>
         )}
-        <View style={[styles.section]} break>
-          {
-            <View style={styles.sectionTwo}>
-              <Text
-                style={[
-                  styles.tableAlign,
-                  {
-                    width: "50%",
-                    backgroundColor: "gray",
-                    fontFamily: "Times-Bold",
-                    textAlign: "left",
-                    paddingLeft: 10,
-                  },
-                ]}
-              >
-                {t("PDF.secondary")}
-              </Text>
-              <Text
-                style={[
-                  styles.tableAlign,
-                  {
-                    width: "25%",
-                    backgroundColor: "gray",
-                    fontFamily: "Times-Bold",
-                  },
-                ]}
-              >
-                {t("PDF.weight")} {units && units.weight}
-              </Text>
-              <Text
-                style={[
-                  styles.tableAlign,
-                  {
-                    width: "25%",
-                    backgroundColor: "gray",
-                    fontFamily: "Times-Bold",
-                  },
-                ]}
-              >
-                {t("PDF.volume")} {units && units.volume}
-              </Text>
-            </View>
-          }
-
-          {secondary.map((item, i) => (
-            <View style={styles.sectionTwo} key={"secondary " + i}>
-              <Text
-                style={[
-                  styles.tableAlign,
-                  { width: "50%", textAlign: "left", paddingLeft: 10 },
-                ]}
-              >
-                {i + 1}. {t(`${lodash.camelCase(item.name)}`)}
-              </Text>
-              <Text style={[styles.tableAlign, { width: "25%" }]}>
-                {item.details[0]}
-              </Text>
-              <Text style={[styles.tableAlign, { width: "25%" }]}>
-                {item.details[1]}
-              </Text>
-            </View>
-          ))}
-          {filteredAdditives && filteredAdditives.length && (
-            <View style={[styles.sectionTwo, { marginTop: 12 }]}>
-              <Text
-                style={[
-                  styles.tableAlign,
-                  {
-                    width: "75%",
-                    backgroundColor: "gray",
-                    fontFamily: "Times-Bold",
-                    textAlign: "left",
-                    paddingLeft: 10,
-                  },
-                ]}
-              >
-                {t("PDF.additives")}
-              </Text>
-              <Text
-                style={[
-                  styles.tableAlign,
-                  {
-                    width: "25%",
-                    backgroundColor: "gray",
-                    fontFamily: "Times-Bold",
-                  },
-                ]}
-              >
-                {t("PDF.addAmount")}
-              </Text>
-            </View>
-          )}
-          {filteredAdditives &&
-            filteredAdditives.map((item, i) => (
-              <View style={styles.sectionTwo} key={"additive " + i}>
+        {secondary.length > 0 && (
+          <View style={[styles.section]} break>
+            {
+              <View style={styles.sectionTwo}>
                 <Text
                   style={[
                     styles.tableAlign,
-                    { width: "75%", textAlign: "left", paddingLeft: 10 },
+                    {
+                      width: "50%",
+                      backgroundColor: "gray",
+                      fontFamily: "Times-Bold",
+                      textAlign: "left",
+                      paddingLeft: 10,
+                    },
                   ]}
                 >
-                  {i + 1}. {item.name}
+                  {t("PDF.secondary")}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableAlign,
+                    {
+                      width: "25%",
+                      backgroundColor: "gray",
+                      fontFamily: "Times-Bold",
+                    },
+                  ]}
+                >
+                  {t("PDF.weight")} {units && units.weight}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableAlign,
+                    {
+                      width: "25%",
+                      backgroundColor: "gray",
+                      fontFamily: "Times-Bold",
+                    },
+                  ]}
+                >
+                  {t("PDF.volume")} {units && units.volume}
+                </Text>
+              </View>
+            }
+
+            {secondary.map((item, i) => (
+              <View style={styles.sectionTwo} key={"secondary " + i}>
+                <Text
+                  style={[
+                    styles.tableAlign,
+                    { width: "50%", textAlign: "left", paddingLeft: 10 },
+                  ]}
+                >
+                  {i + 1}. {t(`${lodash.camelCase(item.name)}`)}
                 </Text>
                 <Text style={[styles.tableAlign, { width: "25%" }]}>
-                  {`${item.amount}${item.unit}`}
+                  {item.details[0]}
+                </Text>
+                <Text style={[styles.tableAlign, { width: "25%" }]}>
+                  {item.details[1]}
                 </Text>
               </View>
             ))}
-        </View>
+            {filteredAdditives && filteredAdditives.length > 0 && (
+              <View style={[styles.sectionTwo, { marginTop: 12 }]}>
+                <Text
+                  style={[
+                    styles.tableAlign,
+                    {
+                      width: "75%",
+                      backgroundColor: "gray",
+                      fontFamily: "Times-Bold",
+                      textAlign: "left",
+                      paddingLeft: 10,
+                    },
+                  ]}
+                >
+                  {t("PDF.additives")}
+                </Text>
+                <Text
+                  style={[
+                    styles.tableAlign,
+                    {
+                      width: "25%",
+                      backgroundColor: "gray",
+                      fontFamily: "Times-Bold",
+                    },
+                  ]}
+                >
+                  {t("PDF.addAmount")}
+                </Text>
+              </View>
+            )}
+            {filteredAdditives &&
+              filteredAdditives.map((item, i) => (
+                <View style={styles.sectionTwo} key={"additive " + i}>
+                  <Text
+                    style={[
+                      styles.tableAlign,
+                      { width: "75%", textAlign: "left", paddingLeft: 10 },
+                    ]}
+                  >
+                    {i + 1}. {item.name}
+                  </Text>
+                  <Text style={[styles.tableAlign, { width: "25%" }]}>
+                    {`${item.amount} ${item.unit !== "units" ? item.unit : ""}`}
+                  </Text>
+                </View>
+              ))}
+          </View>
+        )}
         {secondaryNotes.length && secondaryNotes[0][0].length && (
           <View
             style={{
