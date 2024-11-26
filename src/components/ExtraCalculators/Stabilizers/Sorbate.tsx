@@ -40,64 +40,66 @@ export default function Sorbate() {
     }));
   };
   return (
-    <Table>
-      <TableHeader>
-        <TableRow className="border-none">
-          <TableHead colSpan={3}>
-            <Title header={t("sorbateHeading")} />
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow>
-          <TableHead>{t("batchSize")} </TableHead>
-          <TableCell>
-            <Input
-              type="number"
-              id="batchSize"
-              onFocus={(e) => e.target.select()}
-              onChange={handleChange}
-            />
-          </TableCell>
-          <TableCell>
-            <Select
-              name="units"
-              value={sorbate.units}
-              onValueChange={(val) => {
-                setSorbate((prev) => ({ ...prev, units: val }));
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gallons">{t("GAL")}</SelectItem>
-                <SelectItem value="liters">{t("LIT")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </TableCell>
-        </TableRow>
+    <div className="w-11/12 sm:w-1/2 flex flex-col items-center justify-center rounded-xl bg-background p-8 my-[8rem] gap-6">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-none">
+            <TableHead colSpan={3}>
+              <Title header={t("sorbateHeading")} />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableHead>{t("batchSize")} </TableHead>
+            <TableCell>
+              <Input
+                type="number"
+                id="batchSize"
+                onFocus={(e) => e.target.select()}
+                onChange={handleChange}
+              />
+            </TableCell>
+            <TableCell>
+              <Select
+                name="units"
+                value={sorbate.units}
+                onValueChange={(val) => {
+                  setSorbate((prev) => ({ ...prev, units: val }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gallons">{t("GAL")}</SelectItem>
+                  <SelectItem value="liters">{t("LIT")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </TableCell>
+          </TableRow>
 
-        <TableRow>
-          <TableHead>{t("ABV")}: </TableHead>
-          <TableCell colSpan={2}>
-            <Input
-              id="abv"
-              type="number"
-              onFocus={(e) => e.target.select()}
-              onChange={handleChange}
-              value={sorbate.abv}
-            />
-          </TableCell>
-        </TableRow>
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell className="my-4 text-lg text-center" colSpan={3}>
-            {Math.round(sorbateAmount * 1000) / 1000}g {t("kSorb")}
-          </TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+          <TableRow>
+            <TableHead>{t("ABV")}: </TableHead>
+            <TableCell colSpan={2}>
+              <Input
+                id="abv"
+                type="number"
+                onFocus={(e) => e.target.select()}
+                onChange={handleChange}
+                value={sorbate.abv}
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell className="my-4 text-lg text-center" colSpan={3}>
+              {Math.round(sorbateAmount * 1000) / 1000}g {t("kSorb")}
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
   );
 }

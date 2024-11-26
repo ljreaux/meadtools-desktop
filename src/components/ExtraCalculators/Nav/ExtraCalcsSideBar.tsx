@@ -3,7 +3,7 @@ import { TbBeer } from "react-icons/tb";
 import { FaPercent } from "react-icons/fa";
 import { FaBalanceScaleLeft } from "react-icons/fa";
 import { SiOxygen } from "react-icons/si";
-import { GiPowder } from "react-icons/gi";
+import { GiChemicalDrop, GiPowder } from "react-icons/gi";
 import { PiRainbow } from "react-icons/pi";
 import { TiThermometer } from "react-icons/ti";
 import { RxBlendingMode } from "react-icons/rx";
@@ -33,13 +33,18 @@ function ExtraCalcsSideBar() {
         />
         <Logos
           link="/ExtraCalcs/benchTrials"
-          logo={<SiOxygen />}
+          logo={<GiChemicalDrop />}
           calc={t("sideNav.benchTrials")}
         />
         <Logos
-          link="/ExtraCalcs/stabilizers"
+          link="/ExtraCalcs/sulfite"
+          logo={<SiOxygen />}
+          calc={t("sulfiteHeading")}
+        />
+        <Logos
+          link="/ExtraCalcs/sorbate"
           logo={<GiPowder />}
-          calc={t("sideNav.stabilizers")}
+          calc={t("sorbateHeading")}
         />
         <Logos
           link="/ExtraCalcs/RefractometerCorrection"

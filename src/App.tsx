@@ -26,6 +26,7 @@ import Juice from "./components/Juice/Juice";
 import ManualEntry from "./components/PillData/ManualEntry";
 import UpdateDialog from "./updateDialog";
 import EditHydro from "./components/PillData/EditHydro";
+import Stabilizers from "./components/Stabilizers/Stabilizers";
 
 export interface Additive {
   name: string;
@@ -203,6 +204,7 @@ function App() {
             }
           />
           <Route path="/NuteCalc" element={<NutrientCalc />} />
+          <Route path="/stabilizers" element={<Stabilizers />} />
           <Route path="/ExtraCalcs/*" element={<ExtraCalcs />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<ContactUs />} />
