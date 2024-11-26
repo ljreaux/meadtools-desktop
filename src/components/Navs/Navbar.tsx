@@ -25,6 +25,10 @@ const mainCalcs = [
     path: "/NuteCalc/",
     label: "calculators.nutes",
   },
+  {
+    path: "/stabilizers/",
+    label: "calculators.extraCalcs.stabilizers",
+  },
 ];
 
 const extraCalculatorLinks = [
@@ -45,8 +49,12 @@ const extraCalculatorLinks = [
     label: "calculators.extraCalcs.benchTrials",
   },
   {
-    path: "/ExtraCalcs/stabilizers",
-    label: "calculators.extraCalcs.stabilizers",
+    path: "/ExtraCalcs/sulfite",
+    label: "sulfiteHeading",
+  },
+  {
+    path: "/ExtraCalcs/sorbate",
+    label: "sorbateHeading",
   },
   {
     path: "/ExtraCalcs/RefractometerCorrection",
