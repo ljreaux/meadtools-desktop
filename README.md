@@ -1,34 +1,59 @@
-# MeadTools Desktop
+# MeadTools Desktop _(Deprecated)_
 
-MeadTools Desktop is the standalone desktop version of MeadTools, an all-in-one calculator designed for meadmakers. Built using Tauri 2.0, this version provides offline capabilities and a sleek, native experience for managing and analyzing mead recipes.
+> ⚠️ **Important Notice:**  
+> MeadTools Desktop has been **deprecated** and is no longer maintained or supported.  
+> Users are encouraged to use the [MeadTools Web App](https://meadtools.vercel.app) for the latest features and updates.  
+> This repository remains public for historical reference.
 
-## Features
-- Sortable Yeast Table: Filter and sort yeast by key attributes like nitrogen content, alcohol tolerance, and temperature range.
-- Temperature Unit Conversion: Easily switch between Fahrenheit and Celsius for all temperature-dependent calculations.
-- Offline Capability: MeadTools Desktop works without an internet connection, making it perfect for remote brewing sessions.
-- Low Resource Usage: Built with Tauri, this app has a minimal footprint, allowing it to run efficiently even on low-spec machines.
+---
 
-## Installation
+## Overview
 
-## Prerequisites
-- Node.js >= v16
-- Rust and Cargo
+MeadTools Desktop was the standalone desktop version of **MeadTools**, an all-in-one calculator designed for meadmakers.  
+Built using **Tauri 2.0**, it provided offline capabilities and a lightweight, native experience for managing and analyzing mead recipes.
 
-## Setup
-1. Clone the repository:
+---
+
+## Legacy Features
+
+- **Sortable Yeast Table** – Filter and sort yeast by nitrogen content, alcohol tolerance, and temperature range.  
+- **Temperature Unit Conversion** – Switch between Fahrenheit and Celsius for temperature-dependent calculations.  
+- **Offline Capability** – Fully functional without an internet connection.  
+- **Lightweight Design** – Built with Tauri for minimal resource usage, suitable for low-spec machines.
+
+---
+
+## Deprecation Details
+
+- **Last Release:** `v1.0.3`  
+- **Support Status:** No longer maintained  
+- **Reason:** MeadTools has transitioned fully to a modern web-based platform that receives all new features, bug fixes, and integrations.
+
+You can continue to use previously downloaded versions of MeadTools Desktop, but **no further updates or security patches will be released**.
+
+---
+
+## Web Version
+
+The MeadTools web version offers continuous updates, new brewing tools, and cloud-backed data access.  
+👉 Visit [https://meadtools.vercel.app](https://meadtools.vercel.app)
+
+---
+
+## Legacy Development Instructions
+
+> 🧩 _For archival or educational purposes only._  
+> The setup instructions below are provided to allow developers to explore the historical desktop implementation.
+
+### Prerequisites
+- Node.js ≥ 16  
+- Rust and Cargo  
+
+### Setup
 ```bash
 git clone https://github.com/ljreaux/meadtools-desktop.git
-```
-2. Navigate into the directory:
-```bash
 cd meadtools-desktop
-```
-3. Install dependencies:
-```bash
 npm install
-```
-4. Build and run the app:
-```bash
 npm run tauri dev
 ```
 
@@ -41,13 +66,12 @@ This will generate the executable for your platform.
 
 ## Contributing
 
-Feel free to submit issues and pull requests. Contributions are welcome!
+This repository is no longer under active development.
+Pull requests will not be reviewed, but forks are welcome for educational or experimental purposes.
 
 ## Support the Project
 
-If you find MeadTools useful, consider supporting development by donating on [Ko-fi](https://ko-fi.com/meadtools).
+If you’d like to support continued MeadTools development (web and API), you can do so on [Ko-fi](https://ko-fi.com/meadtools).
 
 ## License
 This project is licensed under the MIT License.
-
-Let me know if you’d like any adjustments!
